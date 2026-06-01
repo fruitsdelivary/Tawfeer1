@@ -1,147 +1,677 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دليفري الخضار والفاكهة..قائمة الأسعار ونموذج الطلب</title>
+    <title>متجر عروض التوفير - قطن مصري 100% على أبوه!</title>
+    <!-- Tailwind CSS لسرعة التنسيق والاحترافية -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- خطوط جوجل (خط القاهرة وتجوال) المناسبة للهجة المصرية والمظهر العصري -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- مكتبة الأيقونات الشهيرة FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#FFCC00',
+                        brandDark: '#121212',
+                        brandGray: '#1e1e1e',
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f7f9fb; }
-        .static-row, .interactive-row { transition: background-color 0.2s; border-bottom: 1px solid #f0f0f0; }
-        .static-row:hover, .interactive-row:hover { background-color: #f3f4f6; }
-        
-        .quantity-select { 
-            height: 34px; min-width: 85px; text-align-last: center; 
-            border: 2px solid #22c55e; border-radius: 6px; appearance: none; 
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315803d' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
-            background-repeat: no-repeat; background-position: left 0.3rem center; 
-            background-size: 0.8em; padding-left: 1.2rem; font-weight: bold;
-            background-color: #fff; font-size: 0.75rem; cursor: pointer;
+        /* إضافة بعض المؤثرات الجمالية المخصصة */
+        .yellow-gradient {
+            background: linear-gradient(135deg, #FFCC00 0%, #FFAA00 100%);
         }
-
-        .offer-badge { 
-            display: inline-block; background: linear-gradient(to right, #ef4444, #b91c1c); 
-            color: white; padding: 1px 8px; border-radius: 9999px; 
-            font-size: 10px; font-weight: bold; margin-top: 2px; animation: pulse 1.5s infinite; 
+        .dark-gradient {
+            background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
         }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
-        
-        /* تنسيق النجوم المحدث */
-        .star-rating button { font-size: 2.5rem; color: #d1d5db; transition: all 0.2s; }
-        .star-rating button.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); transform: scale(1.1); }
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(255, 204, 0, 0.15);
+        }
+        /* تصميم السكرول بار الأنيق */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFCC00;
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="bg-[#fcfaf2] text-zinc-900 font-sans min-height-screen flex flex-col antialiased">
 
-    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-10 border-4 border-green-500/50">
-
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-green-700 mb-4" id="main-title">💰أسعار اليوم💰</h1>
-            <div class="mb-6">
-                <img src="https://i.ibb.co/3yfhVHXj/1764874410467.png" alt="الشعار" class="mx-auto w-24 h-24 rounded-full border-4 border-green-300 shadow-xl object-cover">
-                <p class="text-lg font-bold text-gray-600 mt-2">خُبراء الخضار والفاكهة</p>
-                <p id="date-display" class="text-md font-bold text-blue-600 mt-3 bg-blue-50 inline-block px-4 py-1 rounded-full border border-blue-200"></p>
-            </div>
-            <button onclick="shareList()" class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-6 py-2 rounded-full font-bold hover:bg-green-200 transition mb-4 shadow-sm">
-                <span>🔗 شارك القائمة مع أصدقائك</span>
-            </button>
-        </header>
-        
-        <div id="price-list-view">
-            <button onclick="toggleView('order-form-view')" class="w-full mb-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-2xl transform hover:scale-105 text-xl transition">
-                🛒 ابدأ طلبك الآن! (نموذج الطلب السريع)
-            </button>
-
-            <div class="bg-red-100 text-red-800 font-extrabold p-3 rounded-xl shadow-lg border-4 border-red-500 mb-8 text-center text-xl animate-pulse">
-                🔴 الأسعار قابلة للتغيير خلال اليوم 🔴
-            </div>
-
-            <div class="mb-8 p-4 bg-gray-50 rounded-xl shadow-inner text-center">
-                <input type="text" id="search-input-static" onkeyup="filterItems('static')" placeholder="ابحث عن صنف معين..." class="w-full p-3 border border-gray-300 rounded-lg text-right text-lg" dir="rtl">
-            </div>
-
-            <section class="border-4 border-red-500 rounded-xl overflow-hidden shadow-lg mb-10">
-                <h2 class="bg-red-600 text-white text-2xl font-bold p-4 text-center">📦 عروض الكميات والجملة</h2>
-                <div class="p-2"><table class="min-w-full"><tbody id="wholesale-tbody-static" class="bg-red-50 divide-y"></tbody></table></div>
-            </section>
-
-            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
-                <h2 class="bg-green-600 text-white text-2xl font-bold p-4 text-center">🥬🥦 خضروات 🥦🥬</h2>
-                <div class="p-2"><table class="min-w-full"><tbody id="vegetables-tbody-static" class="bg-white divide-y"></tbody></table></div>
-            </section>
-
-            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
-                <h2 class="bg-yellow-600 text-white text-2xl font-bold p-4 text-center">🍌🍎 فواكه 🍉🍇</h2>
-                <div class="p-2"><table class="min-w-full"><tbody id="fruits-tbody-static" class="bg-white divide-y"></tbody></table></div>
-            </section>
+    <!-- شريط الإعلانات المتحرك العلوي بلهجة مصرية ترحيبية -->
+    <div class="bg-brandYellow text-brandDark font-bold py-2 text-center text-sm md:text-base tracking-wide shadow-sm overflow-hidden whitespace-nowrap relative z-50">
+        <div class="inline-block animate-marquee">
+            🔥 يا مرحب بيك في عروض التوفير! البس قطن مصري 100% على أبوه وبسعر على قد الإيد.. الشحن متاح لكل المحافظات يا غالي! 🚚
         </div>
-
-        <div id="order-form-view" style="display: none;">
-            <button onclick="toggleView('price-list-view')" class="w-full mb-6 bg-gray-400 text-white font-bold py-3 px-6 rounded-xl transition text-lg text-center">🔙 العودة لقائمة الأسعار</button>
-            <div class="mb-8 p-4 bg-gray-50 rounded-xl shadow-inner text-center">
-                <input type="text" id="search-input-interactive" onkeyup="filterItems('interactive')" placeholder="ابحث لتحديد الكمية..." class="w-full p-3 border border-gray-300 rounded-lg text-right text-lg" dir="rtl">
-            </div>
-            <form id="order-form" onsubmit="event.preventDefault(); generateWhatsAppOrder();">
-                <div class="mb-10 border-4 border-red-500 rounded-xl overflow-hidden shadow-lg">
-                    <h2 class="bg-red-600 text-white text-2xl font-bold p-4 text-center">تحديد عروض الكميات</h2>
-                    <table class="min-w-full"><tbody id="wholesale-tbody-interactive" class="bg-red-50 divide-y"></tbody></table>
-                </div>
-
-                <div class="mb-10 border rounded-xl overflow-hidden shadow-lg">
-                    <h2 class="bg-green-600 text-white text-2xl font-bold p-4 text-center">تحديد كميات الخضروات</h2>
-                    <table class="min-w-full"><tbody id="vegetables-tbody-interactive" class="bg-white divide-y"></tbody></table>
-                </div>
-                <div class="mb-10 border rounded-xl overflow-hidden shadow-lg">
-                    <h2 class="bg-yellow-600 text-white text-2xl font-bold p-4 text-center">تحديد كميات الفواكه</h2>
-                    <table class="min-w-full"><tbody id="fruits-tbody-interactive" class="bg-white divide-y"></tbody></table>
-                </div>
-
-                <div class="bg-blue-50 p-6 rounded-xl text-center mb-8 border-2 border-dashed border-blue-200">
-                    <p class="font-bold text-gray-700 mb-3 text-lg">ما تقييمك لخدمة قائمة الأسعار التفاعلية؟(أعلى تقييم ناحية اليسار)</p>
-                    <div class="star-rating flex justify-center gap-2" id="star-container">
-                        <button type="button" onclick="setRating(1)" class="hover:scale-110 transition">⭐</button>
-                        <button type="button" onclick="setRating(2)" class="hover:scale-110 transition">⭐</button>
-                        <button type="button" onclick="setRating(3)" class="hover:scale-110 transition">⭐</button>
-                        <button type="button" onclick="setRating(4)" class="hover:scale-110 transition">⭐</button>
-                        <button type="button" onclick="setRating(5)" class="hover:scale-110 transition">⭐</button>
-                    </div>
-                    <input type="hidden" id="rating-value" value="0">
-                </div>
-
-                <div class="mt-8">
-                    <textarea id="notes" rows="4" placeholder="العنوان بالتفصيل ورقم الموبايل وأي ملاحظات أخرى..." class="w-full p-4 border border-gray-300 rounded-lg text-right shadow-inner" dir="rtl"></textarea>
-                </div>
-                <button type="submit" class="w-full mt-10 bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-2xl transform hover:scale-105 text-xl transition">إرسال الطلب عبر واتساب ✅</button>
-            </form>
-        </div>
-
-        <footer class="mt-12 pt-6 border-t-2 text-center">
-            <div class="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 mb-6 font-bold text-gray-700">
-                🕒 مواعيد العمل من 10 ص إلى 5 م يومياً ما عدا الجمعة
-            </div>
-            <a href="http://wa.me/201032872750" target="_blank" class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full transition shadow-md mb-6 mx-auto max-w-sm">
-                📨 اضغط هنا للمحادثة عبر واتساب
-            </a>
-            <a href="https://www.facebook.com/pg/3oroadtawfeer" target="_blank" class="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 shadow-md transform hover:scale-105 mx-auto max-w-sm">
-                زيارة صفحة الفيسبوك
-            </a>
-            <div class="mt-8 p-2 text-center">
-                <a href="https://www.freecounterstat.com"><img src="https://counter1.optistats.ovh/private/freecounterstat.php?c=4c8kqkxygt8km1fw7qfsjmr2ktzj1qwf" border="0" title="web hit counter"></a>
-            </div>
-        </footer>
     </div>
 
+    <!-- الهيدر أو شريط التنقل الرئيسي -->
+    <header class="bg-brandDark text-white sticky top-0 z-40 shadow-xl border-b border-yellow-400/20">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            
+            <!-- الشعار وصورة البراند -->
+            <a href="#" class="flex items-center gap-3">
+                <img src="1000158496.png" alt="شعار عروض التوفير" class="h-16 w-16 rounded-full border-2 border-brandYellow object-cover">
+                <div class="hidden md:block">
+                    <h1 class="text-brandYellow font-extrabold text-xl tracking-tight leading-tight">عروض التوفير</h1>
+                    <p class="text-xs text-zinc-400 font-medium">للجودة القطنية والتصدير</p>
+                </div>
+            </a>
+
+            <!-- القائمة الرئيسية بلهجة مصرية ودية -->
+            <nav class="hidden lg:flex items-center gap-8 font-semibold text-zinc-300">
+                <a href="#home" class="hover:text-brandYellow transition duration-200 text-brandYellow border-b-2 border-brandYellow pb-1">الرئيسية</a>
+                <a href="#shop" class="hover:text-brandYellow transition duration-200">التشكيلة كلها</a>
+                <a href="#about" class="hover:text-brandYellow transition duration-200 font-medium">حكايتنا إيه؟</a>
+                <a href="#contact" class="hover:text-brandYellow transition duration-200">كلّمنا</a>
+            </nav>
+
+            <!-- أزرار تفاعلية والواتساب وسلة المشتريات -->
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/201012345678" target="_blank" class="hidden sm:flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-full text-sm transition shadow-md">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    <span>اسألنا على الواتساب</span>
+                </a>
+                
+                <!-- أيقونة سلة المشتريات التفاعلية -->
+                <button onclick="toggleCart()" class="relative bg-brandGray border border-yellow-400/30 p-3 rounded-full hover:bg-zinc-800 transition duration-200 text-brandYellow shadow-inner">
+                    <i class="fa-solid fa-basket-shopping text-xl"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white font-bold text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce shadow">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- البنر الرئيسي (البطل - Hero) باستخدام صورة الواجهة المقترحة -->
+    <section id="home" class="relative bg-brandDark text-white py-16 lg:py-24 overflow-hidden border-b-4 border-brandYellow">
+        <!-- طبقة خلفية مظللة لإبراز التكست -->
+        <div class="absolute inset-0 bg-cover bg-center opacity-25" style="background-image: url('watermarked_img_3667340920600490692.png');"></div>
+        <div class="absolute inset-0 bg-gradient-to-l from-brandDark via-brandDark/90 to-transparent"></div>
+        
+        <div class="container mx-auto px-4 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- محتوى البنر المكتوب بلهجة مصرية تشجيعية وعامية تبيع للزبون المصري -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-right">
+                <span class="inline-block bg-brandYellow text-brandDark font-extrabold px-4 py-1.5 rounded-full text-sm shadow-md tracking-wider">🔥 التشكيلة الجديدة وصلت يا بطل!</span>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                    وفر قرشك والبس <br>
+                    <span class="text-brandYellow font-extrabold relative inline-block">
+                        قطن على أبوه! 😉
+                        <span class="absolute left-0 bottom-1 w-full h-2 bg-yellow-400/30 -z-10 rounded"></span>
+                    </span>
+                </h2>
+                <p class="text-zinc-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 font-medium">
+                    جمعنالك خامات التصدير الفاخرة ووزعناها في تشكيلة تجنن رجالي وحريمي ولأولادك الصغار.. جودة تاخد العقل وبأسعار على قد الإيد علطول!
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                    <a href="#shop" class="bg-brandYellow hover:bg-yellow-400 text-brandDark font-black text-lg py-4 px-8 rounded-full shadow-lg text-center transition-all duration-300 transform hover:scale-105">
+                        <i class="fa-solid fa-cart-shopping ml-2"></i> اتفرج على العروض
+                    </a>
+                    <a href="#about" class="border-2 border-zinc-400 hover:border-brandYellow text-zinc-200 hover:text-brandYellow font-bold text-lg py-4 px-8 rounded-full text-center transition duration-300">
+                        حكايتنا إيه؟
+                    </a>
+                </div>
+            </div>
+
+            <!-- الجانب البصري للبنر يعرض واجهة متكاملة -->
+            <div class="lg:col-span-5 relative flex justify-center">
+                <div class="relative w-80 h-80 sm:w-96 sm:h-96 rounded-full overflow-hidden border-4 border-brandYellow shadow-2xl">
+                    <img src="watermarked_img_3667340920600490692.png" alt="موديل يعرض ملابس المتجر" class="w-full h-full object-cover">
+                    <!-- كبسولة عرض مميزة -->
+                    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-brandDark/90 backdrop-blur-md border border-brandYellow/40 py-2 px-6 rounded-2xl shadow-xl whitespace-nowrap text-center">
+                        <p class="text-xs text-brandYellow font-extrabold">خصومات تصل لـ 30%</p>
+                        <p class="text-white text-sm font-bold">على كل شغل التصدير!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- المزايا السريعة للمحل بلهجة بلدي ودية -->
+    <section class="bg-brandYellow text-brandDark font-bold py-6 shadow-md border-b border-yellow-500/20">
+        <div class="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+            <div class="flex items-center justify-center gap-3">
+                <i class="fa-solid fa-shirt text-2xl"></i>
+                <span>قطن مصري 100% ناعم ومريح</span>
+            </div>
+            <div class="flex items-center justify-center gap-3 border-t sm:border-t-0 sm:border-r border-brandDark/10 pt-4 sm:pt-0 sm:pr-6">
+                <i class="fa-solid fa-truck-fast text-2xl"></i>
+                <span>شحن طلقة لأي مكان في مصر</span>
+            </div>
+            <div class="flex items-center justify-center gap-3 border-t lg:border-t-0 lg:border-r border-brandDark/10 pt-4 lg:pt-0 lg:pr-6">
+                <i class="fa-solid fa-hand-holding-dollar text-2xl"></i>
+                <span>أوفر سعر وأعلى خامة في السوق</span>
+            </div>
+            <div class="flex items-center justify-center gap-3 border-t lg:border-t-0 lg:border-r border-brandDark/10 pt-4 lg:pt-0 lg:pr-6">
+                <i class="fa-solid fa-arrows-rotate text-2xl"></i>
+                <span>معاينة وقياس قبل الاستلام لراحتك</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- المعرض الرئيسي للمنتجات مع التبويبات الفعالة -->
+    <main id="shop" class="container mx-auto px-4 py-16 flex-grow">
+        
+        <!-- العنوان الرئيسي لقسم المنتجات -->
+        <div class="text-center mb-12 space-y-4">
+            <h3 class="text-3xl sm:text-4xl font-extrabold text-brandDark relative inline-block">
+                التشكيلة الرسمية لمتجرنا
+                <span class="block h-1 bg-brandYellow w-2/3 mx-auto mt-2 rounded"></span>
+            </h3>
+            <p class="text-zinc-600 max-w-xl mx-auto font-medium">
+                اختار اللي يعجبك من التشكيلة المتنوعة (رجالي، حريمي، وأطفالي) وحط في السلة، واطلب بضغطة زرار واحدة يا بطل!
+            </p>
+        </div>
+
+        <!-- أزرار التصفية الفعالة (الأقسام) بلهجة مصرية مبهجة -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+            <button onclick="filterProducts('all')" id="btn-all" class="filter-btn bg-brandDark text-white font-bold py-2.5 px-6 rounded-full shadow-md transition-all duration-300">
+                🛒 كله موجود (الكل)
+            </button>
+            <button onclick="filterProducts('men')" id="btn-men" class="filter-btn bg-white hover:bg-zinc-100 text-brandDark border border-zinc-200 font-bold py-2.5 px-6 rounded-full shadow-sm transition-all duration-300">
+                🧔 شغل الرجالي الشيك
+            </button>
+            <button onclick="filterProducts('women')" id="btn-women" class="filter-btn bg-white hover:bg-zinc-100 text-brandDark border border-zinc-200 font-bold py-2.5 px-6 rounded-full shadow-sm transition-all duration-300">
+                👩 الحريمي الأنيق والناعم
+            </button>
+            <button onclick="filterProducts('kids')" id="btn-kids" class="filter-btn bg-white hover:bg-zinc-100 text-brandDark border border-zinc-200 font-bold py-2.5 px-6 rounded-full shadow-sm transition-all duration-300">
+                👶 عسل الأطفال ولعبهم
+            </button>
+        </div>
+
+        <!-- شبكة المنتجات (Product Grid) -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <!-- سيتم توليد المنتجات هنا ديناميكياً بواسطة الجافا سكريبت -->
+        </div>
+
+    </main>
+
+    <!-- حكايتنا إيه؟ (عن المحل) -->
+    <section id="about" class="bg-brandDark text-white py-16 border-t-4 border-brandYellow relative overflow-hidden">
+        <div class="absolute inset-0 bg-yellow-400 opacity-5 pointer-events-none"></div>
+        <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div class="lg:col-span-6 space-y-6">
+                <span class="text-brandYellow font-extrabold text-lg tracking-wide">💡 أصل الحكاية منين؟</span>
+                <h3 class="text-3xl sm:text-4xl font-extrabold leading-tight">شغلنا كله قطن مصري 100% أصلي وبسعر العيلة!</h3>
+                <p class="text-zinc-300 leading-relaxed text-lg">
+                    احنا في متجر **عروض التوفير** قررنا نكسر القواعد.. ليه تدفع مبالغ خيالية في الملابس المستوردة لما ممكن تلبس "قطن بلدك" اللي مغرق أسواق التصدير العالمية وبأقل تمن؟ 
+                </p>
+                <p class="text-zinc-300 leading-relaxed text-lg">
+                    بنختار غزل القطن الممتاز وبنصنع ملابس مريحة تستحمل الحركة واللعب والشغل الشاق. وفرنا موديلات رجالي أنيقة، ودلعنا الحريمي بأذواق ناعمة، وكمان مسبناش حبايبنا الصغار وعملنالهم شغل أطفالي ألوانه تبهج ويفضل معاهم غسيل ولبس سنين.
+                </p>
+                <div class="border-r-4 border-brandYellow pr-4 py-2 bg-brandGray/50 rounded">
+                    <p class="italic text-brandYellow font-bold">"شعارنا وهدفنا الأساسي: الجودة العالية والقطن النظيف مش لازم يكونوا غاليين!"</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 flex justify-center">
+                <div class="relative max-w-md w-full">
+                    <div class="absolute inset-0 bg-brandYellow rounded-3xl rotate-3 scale-102"></div>
+                    <div class="relative bg-brandGray p-6 rounded-3xl border border-yellow-400/30 shadow-2xl space-y-4">
+                        <img src="1000158496.png" alt="اللوجو بتاعنا" class="h-24 w-24 mx-auto rounded-full border-4 border-brandYellow object-cover">
+                        <h4 class="text-center font-bold text-xl text-brandYellow">ليه تشتري من عروض التوفير؟</h4>
+                        <ul class="space-y-3 text-zinc-300 font-medium">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-brandYellow mt-1"></i>
+                                <span>شغل مصانعنا بجودة ممتازة وخيوط متينة.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-brandYellow mt-1"></i>
+                                <span>أسعار منافسة ملهاش بديل في الأسواق والمحلات.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-brandYellow mt-1"></i>
+                                <span>بتعاين المنتج وتتأكد من المقاس قبل ما تدفع قرش واحد للمندوب.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- سلة المشتريات (Drawer) المخفية وتظهر عند الضغط -->
+    <div id="cart-drawer" class="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-white text-zinc-900 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col border-r-2 border-brandYellow">
+        
+        <!-- رأس السلة -->
+        <div class="bg-brandDark text-white p-6 flex items-center justify-between border-b border-yellow-400/30">
+            <div class="flex items-center gap-2 text-brandYellow font-extrabold text-xl">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <span>سلة مشترياتك 🛒</span>
+            </div>
+            <button onclick="toggleCart()" class="text-zinc-400 hover:text-white transition duration-200 text-2xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- محتوى السلة التفاعلي -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
+            <!-- المنتجات المختارة هتنزل هنا ديناميكياً -->
+            <div id="empty-cart-message" class="text-center py-12 space-y-4">
+                <i class="fa-solid fa-box-open text-6xl text-zinc-300"></i>
+                <p class="text-zinc-500 font-semibold text-lg">سلتك فاضية خالص يا غالي!</p>
+                <p class="text-xs text-zinc-400">لف لفة في المحل واختار اللي يشد عينك وحطه هنا.</p>
+            </div>
+        </div>
+
+        <!-- حساب الإجمالي ونموذج الطلب السريع عبر الواتساب -->
+        <div id="cart-checkout-section" class="border-t border-zinc-200 p-6 bg-[#fcfaf2] space-y-4 hidden">
+            <div class="flex items-center justify-between text-lg font-bold border-b pb-3 border-zinc-300">
+                <span class="text-zinc-600">الحساب كله كام؟</span>
+                <span class="text-brandDark text-2xl"><span id="cart-total-price" class="text-brandDark">0</span> ج.م</span>
+            </div>
+
+            <!-- معلومات الزبون المصري لإرسال الطلب بشكل منظم -->
+            <div class="space-y-3">
+                <p class="text-sm font-bold text-zinc-700">✍️ اكتب بياناتك السريعة عشان نجهز الشحنة علطول:</p>
+                <div>
+                    <input type="text" id="customer-name" placeholder="اسمك الكريم إيه؟" class="w-full border border-zinc-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brandYellow focus:ring-1 focus:ring-brandYellow" required>
+                </div>
+                <div>
+                    <input type="tel" id="customer-phone" placeholder="رقم الموبايل بتاعك؟" class="w-full border border-zinc-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brandYellow focus:ring-1 focus:ring-brandYellow" required>
+                </div>
+                <div>
+                    <input type="text" id="customer-address" placeholder="العنوان بالتفصيل (المحافظة والشارع)؟" class="w-full border border-zinc-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brandYellow focus:ring-1 focus:ring-brandYellow" required>
+                </div>
+                <div>
+                    <textarea id="customer-notes" placeholder="أي ملاحظات للمقاس أو اللون أو معاد التوصيل؟" class="w-full border border-zinc-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brandYellow focus:ring-1 focus:ring-brandYellow" rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- زر التشييك والواتس -->
+            <button onclick="checkoutToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-3 text-lg">
+                <i class="fab fa-whatsapp text-2xl"></i>
+                <span>أكد الطلب وابعت على الواتساب علطول!</span>
+            </button>
+            <p class="text-center text-xs text-zinc-500">الزرار هيفتحلك شات واتساب تلقائياً بالطلب جاهز ومنسق 😉</p>
+        </div>
+
+    </div>
+
+    <!-- طبقة التظليل الخلفية عند فتح السلة -->
+    <div id="cart-backdrop" onclick="toggleCart()" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-300"></div>
+
+    <!-- تذييل الصفحة (الفوتر) -->
+    <footer id="contact" class="bg-brandDark text-zinc-400 py-12 border-t border-yellow-400/20 mt-auto">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-12 gap-8">
+            
+            <div class="md:col-span-4 space-y-4">
+                <div class="flex items-center gap-3">
+                    <img src="1000158496.png" alt="شعار المحل" class="h-16 w-16 rounded-full border border-brandYellow object-cover">
+                    <h5 class="text-brandYellow font-extrabold text-xl">متجر عروض التوفير</h5>
+                </div>
+                <p class="text-sm">
+                    ملك القطن والأسعار البسيطة في مصر. هدفنا نقدملك أعلى خامة بأوفر سعر، وتشرفنا عائلتنا من كل المحافظات.
+                </p>
+                <div class="flex gap-3 text-lg">
+                    <a href="#" class="hover:text-brandYellow text-zinc-300 transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-brandYellow text-zinc-300 transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-brandYellow text-zinc-300 transition"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div class="md:col-span-4 space-y-4">
+                <h5 class="text-white font-extrabold text-lg border-r-4 border-brandYellow pr-2">أقسام سريعة</h5>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#home" class="hover:text-brandYellow transition">الصفحة الرئيسية</a></li>
+                    <li><a href="#shop" class="hover:text-brandYellow transition">تصفح كل التشكيلة والمنتجات</a></li>
+                    <li><a href="#about" class="hover:text-brandYellow transition">حكايتنا ونشأتنا</a></li>
+                    <li><a href="https://wa.me/201012345678" target="_blank" class="hover:text-brandYellow transition">اسأل على الواتساب</a></li>
+                </ul>
+            </div>
+
+            <div class="md:col-span-4 space-y-4">
+                <h5 class="text-white font-extrabold text-lg border-r-4 border-brandYellow pr-2">تواصل معنا مباشرة</h5>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-phone text-brandYellow"></i>
+                        <span>رقم الموبايل: 01012345678 (واتساب أو اتصال)</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-brandYellow"></i>
+                        <span>المقر الرئيسي: شربين، الدقهلية، مصر</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-envelope text-brandYellow"></i>
+                        <span>البريد الإلكتروني: contact@toffershop.com</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="border-t border-zinc-800 mt-8 pt-6 text-center text-xs text-zinc-600">
+            <p>© جميع الحقوق محفوظة لمتجر عروض التوفير 2026. تم التصميم بحب لخدمة عائلتنا المصرية 💛🖤</p>
+        </div>
+    </footer>
+
+    <!-- الجزء البرمجي (JavaScript) لإدارة المنتجات، التبويبات والسلة -->
     <script>
-        // عروض الجملة والكميات
-        const wholesaleData = [
-            { name: "بصل أحمر (10ك)", price: 130, oldPrice: 150, unit: "شيكارة" },
-            { name: "طماطم (23ك)", price: 300, oldPrice: 350, unit: "قفص" },
-            { name: "بطاطس تحمير (10ك)", price: 170, oldPrice: 200, unit: "شيكارة" }
+        // مصفوفة المنتجات التي تحتوي على الرجالي، الحريمي والأطفالي
+        const products = [
+            {
+                id: 1,
+                name: "هودي قطن مصري تقيل على أبوه دفا وراحة",
+                category: "men",
+                price: 349,
+                badge: "الرقم 1 في المبيعات 🔥",
+                description: "قطن مصري أصلي 100% ثقيل ومبطن ومغسول عشان يديك دفا ملهاش مثيل وميوبش أبداً.",
+                image: "http://googleusercontent.com/image_collection/image_retrieval/267308885550808001_0"
+            },
+            {
+                id: 2,
+                name: "تيشرت بولو شياكة وأناقة تليق بيك",
+                category: "men",
+                price: 249,
+                badge: "شغل تصدير فاخر ✨",
+                description: "تيشرت خامة بيكيه قطن عالية، تقفيل نظيف جداً وألوان ثابتة، ممتاز للشغل والمشاوير العادية.",
+                image: "http://googleusercontent.com/image_collection/image_retrieval/12105632646456064678_0"
+            },
+            {
+                id: 3,
+                name: "تيشيرت أطفالي قطن ناعم مريح للعب والشقاوة",
+                category: "kids",
+                price: 189,
+                badge: "رقيق على بشرتهم 👶",
+                description: "قطن خفيف مبيعملش أي حساسية للصغار ومستحمل اللعب وحركتهم الكثيرة والغسيل المتكرر.",
+                image: "http://googleusercontent.com/image_collection/image_retrieval/10501333762594814547_0"
+            },
+            {
+                id: 4,
+                name: "فستان صيفي بناتي ألوان مبهجة ورقيقة",
+                category: "women",
+                price: 299,
+                badge: "التشكيلة الجديدة 🌸",
+                description: "فستان قطن مريح ومناسب لحر الصيف وخامات باردة بأشكال رقيقة وتصاميم تخلي بنوتك قمر.",
+                image: "http://googleusercontent.com/image_collection/image_retrieval/16469220297063874553_0"
+            },
+            {
+                id: 5,
+                name: "سويت بانتس قطن مرن جداً وعملي",
+                category: "men",
+                price: 199,
+                badge: "عرض لقطة 💸",
+                description: "بنطلون رياضي قطن مريح ومناسب للچيم والمشاوير السريعة بألوان أساسية تليق على كل طقم.",
+                image: "https://placehold.co/400x400/121212/FFCC00?text=سويت+بانتس+مريح"
+            },
+            {
+                id: 6,
+                name: "ترنج أطفالي قطن قطعتين خريفي مبهج",
+                category: "kids",
+                price: 279,
+                badge: "عرض التوفير الأقوى 🎯",
+                description: "طقم قطعتين قطن للأولاد والبنات خامات تحميهم ومقاسات مريحة للنوم واللعب براحتهم.",
+                image: "https://placehold.co/400x400/FFCC00/121212?text=ترنج+أطفالي+قطن"
+            },
+            {
+                id: 7,
+                name: "تيشرت حريمي كاجوال قطن ناعم مريح",
+                category: "women",
+                price: 179,
+                badge: "ناعم ومريح جداً ✨",
+                description: "تيشرت خفيف وناعم جداً من قطن عالي الجودة لراحتك الكاملة في اللبس اليومي والبيت.",
+                image: "https://placehold.co/400x400/1e1e1e/FFCC00?text=تيشرت+حريمي+أنيق"
+            },
+            {
+                id: 8,
+                name: "بنطلون جينز أطفالي مريح وقوي للشطارة",
+                category: "kids",
+                price: 229,
+                badge: "خامات متينة ومقاومة 👶",
+                description: "جينز مرن بنقشة لطيفة مستحمل الشقاوة واللعب ومريح جداً في الحركة اليومية لطفلك.",
+                image: "https://placehold.co/400x400/121212/FFCC00?text=جينز+أطفالي+قوي"
+            }
         ];
 
-        const productsData = [
-            { name: "بصل أحمر 1", price: 17.5, unit: "كجم", category: "vegetable" },
-            { name: "بصل أحمر 2", price: 15.0, unit: "كجم", category: "vegetable" },
+        // مصفوفة لتخزين العناصر اللي تم إضافتها للسلة
+        let cart = [];
+
+        // دالة توليد وعرض المنتجات على الشاشة
+        function renderProducts(productsList) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+
+            productsList.forEach(prod => {
+                grid.innerHTML += `
+                    <div class="bg-white border border-zinc-200 rounded-3xl overflow-hidden product-card flex flex-col justify-between">
+                        <div class="relative h-72 bg-zinc-100 overflow-hidden">
+                            <img src="${prod.image}" alt="${prod.name}" class="w-full h-full object-cover">
+                            ${prod.badge ? `<span class="absolute top-3 right-3 bg-brandYellow text-brandDark font-extrabold text-xs px-3 py-1.5 rounded-full shadow-md">${prod.badge}</span>` : ''}
+                        </div>
+                        <div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <span class="text-xs text-zinc-400 font-extrabold tracking-wide uppercase">
+                                    ${prod.category === 'men' ? '🧔 تشكيلة رجالي' : prod.category === 'women' ? '👩 تشكيلة حريمي' : '👶 تشكيلة أطفالي'}
+                                </span>
+                                <h4 class="font-bold text-lg text-brandDark line-clamp-2">${prod.name}</h4>
+                                <p class="text-zinc-500 text-sm line-clamp-3">${prod.description}</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-zinc-500 font-semibold text-sm">السعر كام؟</span>
+                                    <span class="text-brandDark font-extrabold text-2xl">${prod.price} <span class="text-sm font-bold">ج.م</span></span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <button onclick="addToCart(${prod.id})" class="bg-brandYellow hover:bg-yellow-400 text-brandDark font-extrabold py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition duration-200">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                        <span>حط في السلة 🛒</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // دالة تصفية المنتجات بحسب التبويب (الأقسام)
+        function filterProducts(category) {
+            // إزالة المظهر النشط عن جميع الأزرار
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brandDark', 'text-white');
+                btn.classList.add('bg-white', 'text-brandDark', 'border', 'border-zinc-200');
+            });
+
+            // تفعيل المظهر النشط للزر المختار
+            const activeBtn = document.getElementById(`btn-${category}`);
+            activeBtn.classList.remove('bg-white', 'text-brandDark', 'border', 'border-zinc-200');
+            activeBtn.classList.add('bg-brandDark', 'text-white');
+
+            // تصفية وعرض المنتجات
+            if (category === 'all') {
+                renderProducts(products);
+            } else {
+                const filtered = products.filter(p => p.category === category);
+                renderProducts(filtered);
+            }
+        }
+
+        // دالة إظهار أو إخفاء سلة المشتريات
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const backdrop = document.getElementById('cart-backdrop');
+            
+            if (drawer.classList.contains('-translate-x-full')) {
+                drawer.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // دالة إضافة منتج إلى سلة المشتريات
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const exist = cart.find(item => item.product.id === productId);
+
+            if (exist) {
+                exist.quantity += 1;
+            } else {
+                cart.push({ product, quantity: 1 });
+            }
+
+            updateCartUI();
+            
+            // فتح السلة تلقائياً ليرى الزبون المنتج
+            toggleCart();
+        }
+
+        // دالة تحديث كمية منتج في السلة (زيادة أو نقصان)
+        function updateQuantity(productId, amount) {
+            const item = cart.find(item => item.product.id === productId);
+            if (item) {
+                item.quantity += amount;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.product.id !== productId);
+                }
+            }
+            updateCartUI();
+        }
+
+        // دالة مسح منتج من السلة نهائياً
+        function removeItemFromCart(productId) {
+            cart = cart.filter(item => item.product.id !== productId);
+            updateCartUI();
+        }
+
+        // دالة لتحديث واجهة سلة المشتريات والعدد الإجمالي
+        function updateCartUI() {
+            const countBadge = document.getElementById('cart-count');
+            const container = document.getElementById('cart-items-container');
+            const emptyMessage = document.getElementById('empty-cart-message');
+            const checkoutSection = document.getElementById('cart-checkout-section');
+            const totalPriceSpan = document.getElementById('cart-total-price');
+
+            // تحديث عدد العناصر فوق الأيقونة
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            countBadge.innerText = totalItems;
+
+            if (cart.length === 0) {
+                emptyMessage.classList.remove('hidden');
+                checkoutSection.classList.add('hidden');
+                container.innerHTML = '';
+                container.appendChild(emptyMessage);
+            } else {
+                emptyMessage.classList.add('hidden');
+                checkoutSection.classList.remove('hidden');
+                container.innerHTML = '';
+
+                let totalPrice = 0;
+
+                cart.forEach(item => {
+                    const itemTotal = item.product.price * item.quantity;
+                    totalPrice += itemTotal;
+
+                    container.innerHTML += `
+                        <div class="flex items-center gap-4 bg-[#fcfaf2] p-4 rounded-2xl border border-zinc-200">
+                            <img src="${item.product.image}" alt="${item.product.name}" class="h-20 w-20 rounded-xl object-cover border border-zinc-300">
+                            <div class="flex-grow space-y-1">
+                                <h5 class="font-bold text-sm text-brandDark line-clamp-1">${item.product.name}</h5>
+                                <p class="text-xs text-zinc-500 font-bold">بكام؟: ${item.product.price} ج.م</p>
+                                
+                                <div class="flex items-center justify-between pt-1">
+                                    <div class="flex items-center border border-zinc-300 rounded-lg overflow-hidden bg-white">
+                                        <button onclick="updateQuantity(${item.product.id}, -1)" class="px-2 py-1 text-zinc-600 hover:bg-zinc-100 text-sm font-black">-</button>
+                                        <span class="px-3 py-1 font-bold text-sm bg-zinc-50 text-brandDark">${item.quantity}</span>
+                                        <button onclick="updateQuantity(${item.product.id}, 1)" class="px-2 py-1 text-zinc-600 hover:bg-zinc-100 text-sm font-black">+</button>
+                                    </div>
+                                    <button onclick="removeItemFromCart(${item.product.id})" class="text-red-500 hover:text-red-700 text-sm font-bold">إمسح 🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                totalPriceSpan.innerText = totalPrice;
+            }
+        }
+
+        // دالة إنشاء وإرسال الطلب للواتساب بلهجة مصرية تفتح النفس
+        function checkoutToWhatsApp() {
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const address = document.getElementById('customer-address').value.trim();
+            const notes = document.getElementById('customer-notes').value.trim();
+
+            if (!name || !phone || !address) {
+                alert('يا غالي أرجوك اكتب (الاسم، ورقم الموبايل، والعنوان بالتفصيل) عشان نعرف نوصلك الشحنة صح! 😉');
+                return;
+            }
+
+            // تجميع محتويات الطلب للرسالة
+            let itemsText = '';
+            let grandTotal = 0;
+            cart.forEach((item, index) => {
+                const totalItemPrice = item.product.price * item.quantity;
+                grandTotal += totalItemPrice;
+                itemsText += `${index + 1}. *${item.product.name}* \n   👈 الكمية: ${item.quantity} | السعر: ${itemTotal = item.product.price * item.quantity} ج.م\n`;
+            });
+
+            // صياغة الرسالة بلهجة مصرية بلدي لطيفة تناسب ثقافة التجارة في مصر
+            const whatsappMessage = 
+`يا فتاح يا عليم يا رزاق يا كريم 🌸
+عايز أعمل طلب جديد من متجر *عروض التوفير*!
+
+👤 *الاسم الكريم:* ${name}
+📞 *رقم الموبايل:* ${phone}
+📍 *العنوان بالتفصيل:* ${address}
+${notes ? `📝 *ملاحظات إضافية:* ${notes}` : ''}
+
+--- 🛒 *الطلبات اللي اخترتها:* ---
+${itemsText}
+---------------------------------
+💰 *الحساب كله:* *${grandTotal} ج.م* (غير شامل الشحن البسيط)
+
+مستني تأكيدك وتجهيز الشحنة يا غالي علطول! 😉🔥`;
+
+            // تشفير النص لإرساله برابط الواتس
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            
+            // استبدل هذا الرقم بالرقم الحقيقي لمتجرك لتصلك الطلبات عليه مباشرة
+            const storeWhatsAppNumber = "201012345678"; 
+            
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${storeWhatsAppNumber}&text=${encodedMessage}`;
+            
+            // فتح صفحة الواتساب لإرسال الطلب مباشرة
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // تشغيل الصفحة عند التحميل وعرض جميع المنتجات كبداية
+        window.onload = function() {
+            renderProducts(products);
+        }
+    </script>
+</body>
+</html>
+
+```
+
+15.0, unit: "كجم", category: "vegetable" },
             { name: "بصل أبيض", price: 25.0, unit: "كجم", category: "vegetable" },
             { name: "ثوم بلدي", price: 120.0,  unit: "كجم", category: "vegetable" },
             { name: "بطاطس تحمير", price: 20.0, unit: "كجم", category: "vegetable" },
