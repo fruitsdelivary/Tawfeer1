@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليفري الخضار والفاكهة..قائمة الأسعار ونموذج الطلب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f7f9fb; }
+        .static-row, .interactive-row { transition: background-color 0.2s; border-bottom: 1px solid #f0f0f0; }
+        .static-row:hover, .interactive-row:hover { background-color: #f3f4f6; }
+        
+        .quantity-select { 
+            height: 34px; min-width: 85px; text-align-last: center; 
+            border: 2px solid #22c55e; border-radius: 6px; appearance: none; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315803d' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+            background-repeat: no-repeat; background-position: left 0.3rem center; 
+            background-size: 0.8em; padding-left: 1.2rem; font-weight: bold;
+            background-color: #fff; font-size: 0.75rem; cursor: pointer;
+        }
+
+        .offer-badge { 
+            display: inline-block; background: linear-gradient(to right, #ef4444, #b91c1c); 
+            color: white; padding: 1px 8px; border-radius: 9999px; 
+            font-size: 10px; font-weight: bold; margin-top: 2px; animation: pulse 1.5s infinite; 
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+        
+        /* تنسيق النجوم المحدث */
+        .star-rating button { font-size: 2.5rem; color: #d1d5db; transition: all 0.2s; }
+        .star-rating button.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); transform: scale(1.1); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-10 border-4 border-green-500/50">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-green-700 mb-4" id="main-title">💰أسعار اليوم💰</h1>
+            <div class="mb-6">
+                <img src="https://i.ibb.co/3yfhVHXj/1764874410467.png" alt="الشعار" class="mx-auto w-24 h-24 rounded-full border-4 border-green-300 shadow-xl object-cover">
+                <p class="text-lg font-bold text-gray-600 mt-2">خُبراء الخضار والفاكهة</p>
+                <p id="date-display" class="text-md font-bold text-blue-600 mt-3 bg-blue-50 inline-block px-4 py-1 rounded-full border border-blue-200"></p>
+            </div>
+            <button onclick="shareList()" class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-6 py-2 rounded-full font-bold hover:bg-green-200 transition mb-4 shadow-sm">
+                <span>🔗 شارك القائمة مع أصدقائك</span>
+            </button>
+        </header>
+        
+        <div id="price-list-view">
+            <button onclick="toggleView('order-form-view')" class="w-full mb-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-2xl transform hover:scale-105 text-xl transition">
+                🛒 ابدأ طلبك الآن! (نموذج الطلب السريع)
+            </button>
+
+            <div class="bg-red-100 text-red-800 font-extrabold p-3 rounded-xl shadow-lg border-4 border-red-500 mb-8 text-center text-xl animate-pulse">
+                🔴 الأسعار قابلة للتغيير خلال اليوم 🔴
+            </div>
+
+            <div class="mb-8 p-4 bg-gray-50 rounded-xl shadow-inner text-center">
+                <input type="text" id="search-input-static" onkeyup="filterItems('static')" placeholder="ابحث عن صنف معين..." class="w-full p-3 border border-gray-300 rounded-lg text-right text-lg" dir="rtl">
+            </div>
+
+            <section class="border-4 border-red-500 rounded-xl overflow-hidden shadow-lg mb-10">
+                <h2 class="bg-red-600 text-white text-2xl font-bold p-4 text-center">📦 عروض الكميات والجملة</h2>
+                <div class="p-2"><table class="min-w-full"><tbody id="wholesale-tbody-static" class="bg-red-50 divide-y"></tbody></table></div>
+            </section>
+
+            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
+                <h2 class="bg-green-600 text-white text-2xl font-bold p-4 text-center">🥬🥦 خضروات 🥦🥬</h2>
+                <div class="p-2"><table class="min-w-full"><tbody id="vegetables-tbody-static" class="bg-white divide-y"></tbody></table></div>
+            </section>
+
+            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
+                <h2 class="bg-yellow-600 text-white text-2xl font-bold p-4 text-center">🍌🍎 فواكه 🍉🍇</h2>
+                <div class="p-2"><table class="min-w-full"><tbody id="fruits-tbody-static" class="bg-white divide-y"></tbody></table></div>
+            </section>
+        </div>
+
+        <div id="order-form-view" style="display: none;">
+            <button onclick="toggleView('price-list-view')" class="w-full mb-6 bg-gray-400 text-white font-bold py-3 px-6 rounded-xl transition text-lg text-center">🔙 العودة لقائمة الأسعار</button>
+            <div class="mb-8 p-4 bg-gray-50 rounded-xl shadow-inner text-center">
+                <input type="text" id="search-input-interactive" onkeyup="filterItems('interactive')" placeholder="ابحث لتحديد الكمية..." class="w-full p-3 border border-gray-300 rounded-lg text-right text-lg" dir="rtl">
+            </div>
+            <form id="order-form" onsubmit="event.preventDefault(); generateWhatsAppOrder();">
+                <div class="mb-10 border-4 border-red-500 rounded-xl overflow-hidden shadow-lg">
+                    <h2 class="bg-red-600 text-white text-2xl font-bold p-4 text-center">تحديد عروض الكميات</h2>
+                    <table class="min-w-full"><tbody id="wholesale-tbody-interactive" class="bg-red-50 divide-y"></tbody></table>
+                </div>
+
+                <div class="mb-10 border rounded-xl overflow-hidden shadow-lg">
+                    <h2 class="bg-green-600 text-white text-2xl font-bold p-4 text-center">تحديد كميات الخضروات</h2>
+                    <table class="min-w-full"><tbody id="vegetables-tbody-interactive" class="bg-white divide-y"></tbody></table>
+                </div>
+                <div class="mb-10 border rounded-xl overflow-hidden shadow-lg">
+                    <h2 class="bg-yellow-600 text-white text-2xl font-bold p-4 text-center">تحديد كميات الفواكه</h2>
+                    <table class="min-w-full"><tbody id="fruits-tbody-interactive" class="bg-white divide-y"></tbody></table>
+                </div>
+
+                <div class="bg-blue-50 p-6 rounded-xl text-center mb-8 border-2 border-dashed border-blue-200">
+                    <p class="font-bold text-gray-700 mb-3 text-lg">ما تقييمك لخدمة قائمة الأسعار التفاعلية؟(أعلى تقييم ناحية اليسار)</p>
+                    <div class="star-rating flex justify-center gap-2" id="star-container">
+                        <button type="button" onclick="setRating(1)" class="hover:scale-110 transition">⭐</button>
+                        <button type="button" onclick="setRating(2)" class="hover:scale-110 transition">⭐</button>
+                        <button type="button" onclick="setRating(3)" class="hover:scale-110 transition">⭐</button>
+                        <button type="button" onclick="setRating(4)" class="hover:scale-110 transition">⭐</button>
+                        <button type="button" onclick="setRating(5)" class="hover:scale-110 transition">⭐</button>
+                    </div>
+                    <input type="hidden" id="rating-value" value="0">
+                </div>
+
+                <div class="mt-8">
+                    <textarea id="notes" rows="4" placeholder="العنوان بالتفصيل ورقم الموبايل وأي ملاحظات أخرى..." class="w-full p-4 border border-gray-300 rounded-lg text-right shadow-inner" dir="rtl"></textarea>
+                </div>
+                <button type="submit" class="w-full mt-10 bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-2xl transform hover:scale-105 text-xl transition">إرسال الطلب عبر واتساب ✅</button>
+            </form>
+        </div>
+
+        <footer class="mt-12 pt-6 border-t-2 text-center">
+            <div class="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 mb-6 font-bold text-gray-700">
+                🕒 مواعيد العمل من 10 ص إلى 5 م يومياً ما عدا الجمعة
+            </div>
+            <a href="http://wa.me/201032872750" target="_blank" class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full transition shadow-md mb-6 mx-auto max-w-sm">
+                📨 اضغط هنا للمحادثة عبر واتساب
+            </a>
+            <a href="https://www.facebook.com/pg/3oroadtawfeer" target="_blank" class="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 shadow-md transform hover:scale-105 mx-auto max-w-sm">
+                زيارة صفحة الفيسبوك
+            </a>
+            <div class="mt-8 p-2 text-center">
+                <a href="https://www.freecounterstat.com"><img src="https://counter1.optistats.ovh/private/freecounterstat.php?c=4c8kqkxygt8km1fw7qfsjmr2ktzj1qwf" border="0" title="web hit counter"></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // عروض الجملة والكميات
+        const wholesaleData = [
+            { name: "بصل أحمر (10ك)", price: 130, oldPrice: 150, unit: "شيكارة" },
+            { name: "طماطم (23ك)", price: 300, oldPrice: 350, unit: "قفص" },
+            { name: "بطاطس تحمير (10ك)", price: 170, oldPrice: 200, unit: "شيكارة" }
+        ];
+
+        const productsData = [
+            { name: "بصل أحمر 1", price: 17.5, unit: "كجم", category: "vegetable" },
+            { name: "بصل أحمر 2", price: 15.0, unit: "كجم", category: "vegetable" },
+            { name: "بصل أبيض", price: 25.0, unit: "كجم", category: "vegetable" },
+            { name: "ثوم بلدي", price: 120.0,  unit: "كجم", category: "vegetable" },
+            { name: "بطاطس تحمير", price: 20.0, unit: "كجم", category: "vegetable" },
+            { name: "بطاطس صغيرة", price: 15.0, unit: "كجم", category: "vegetable" },
+            { name: "باذنجان مكبب", price: 15.0, unit: "كجم", category: "vegetable" },
+            { name: "خيار 1", price: 30.0, unit: "كجم", category: "vegetable" },
+            { name: "خيار 2", price: 25.0, unit: "كجم", category: "vegetable" },
+            { name: "كوسة", price: 30.0, unit: "كجم", category: "vegetable" },
+            { name: "جزر", price: 20.0, unit: "كجم", category: "vegetable" },
+            { name: "طماطم جامدة", price: 16.0, unit: "كجم", category: "vegetable" },
+            { name: "طماطم طبخ سليمة", price: 15.0, unit: "كجم", category: "vegetable" },
+            { name: "طماطم طبخ2", price: 12.5, unit: "كجم", category: "vegetable" },
+            { name: "ليمون 1", price: 60.0, unit: "كجم", category: "vegetable" },
+            { name: "ليمون 2", price: 50.0, unit: "كجم", category: "vegetable" },
+            { name: "فلفل أخضر بارد", price: 25.0, unit: "كجم", category: "vegetable" },
+            { name: "فلفل أخضر حار", price: 25.0, unit: "كجم", category: "vegetable" },
+            { name: "فلفل أحمر بارد", price: 40.0, unit: "كجم", category: "vegetable" },
+            { name: "بطاطا", price: 17.5, unit: "كجم", category: "vegetable" },
+            { name: "فلفل ألوان", price: 70.0, unit: "كجم", category: "vegetable" },
+            { name: "سبانخ", price: 10.0, oldPrice: 12.5, unit: "حزمة", category: "vegetable" },
+            { name: "خس بلدي", price: 10.0, unit: "حزمة", category: "vegetable" },
+            { name: "شبت وكسبرة", price: 10.0, unit: "ربطة", category: "vegetable" },
+            { name: "بقدونس", price: 10.0, unit: "ربطة", category: "vegetable" },
+            { name: "فجل", price: 5.0, unit: "ربطة", category: "vegetable" },
+            { name: "جرجير", price: 5.0, unit: "ربطة", category: "vegetable" },
+            { name: "سريس", price: 5.0, unit: "ربطة", category: "vegetable" },
+            { name: "بصل أخضر", price: 10.0, unit: "ربطة", category: "vegetable" },
+            { name: "كرات مصري", price: 5.0, unit: "ربطة", category: "vegetable" },
+            { name: "نعناع", price: 10.0, unit: "ربطة", category: "vegetable" },
+            { name: "زنجبيل فريش", price: 280.0, unit: "كجم", category: "vegetable" },
+            { name: "قلقاس", price: 25.0, unit: "كجم", category: "vegetable" },
+            { name: "ورق سلق", price: 40.0, unit: "كجم", category: "vegetable" },
+            { name: "بسلة", price: 30.0, unit: "كجم", category: "vegetable" },
+            { name: "باذنجان حشو", price: 20.0, unit: "كجم", category: "vegetable" },
+            { name: "بنجر", price: 30.0, unit: "كجم", category: "vegetable" },
+            { name: "خس كابوتشا", price: 25.0, unit: "حبة", category: "vegetable" },
+            { name: "مشروم فريش", price: 50.0, oldPrice: 60, unit: "طبق", category: "vegetable" },
+            { name: "فاصوليا خضراء", price: 30.0, unit: "كجم", category: "vegetable" },
+            { name: "ثوم صيني (٢٠٠جم)", price: 35.0, unit: "حبة", category: "vegetable" },
+            { name: "كرنب أحمر (سلطة)", price: 35.0, unit: "حبة", category: "vegetable" },
+            { name: "كرنب أبيض (سلطة)", price: 40.0, unit: "حبة", category: "vegetable" },
+            { name: "ذرة أصفر سكري", price: 60.0, unit: "طبق", category: "vegetable" },
+            { name: " أرز رويزق 10ك", price: 285.0, unit: "شيكارة", category: "vegetable" },
+            { name: "موز 1", price: 40.0, unit: "كجم", category: "fruit" },
+            { name: "موز 2", price: 35.0, unit: "كجم", category: "fruit" },
+            { name: "تفاح أحمر", price: 90.0, unit: "كجم", category: "fruit" },
+            { name: "تفاح أصفر", price: 90.0, unit: "كجم", category: "fruit" },
+            { name: "تفاح سكري", price: 100.0, unit: "كجم", category: "fruit" },
+            { name: "تفاح أحمر إيطالي", price: 130.0, unit: "كجم", category: "fruit" },
+            { name: "تفاح أصفر سوري", price: 100.0, unit: "كجم", category: "fruit" },
+            { name: "فراولة", price: 40.0, unit: "كجم", category: "fruit" },
+            { name: "برقوق", price: 150.0, unit: "كجم", category: "fruit" },
+            { name: "كيوي", price: 150.0, unit: "كجم", category: "fruit" },
+            { name: "برتقال بصره 1", price: 30.0, unit: "كجم", category: "fruit" },
+            { name: "برتقال بصره 2", price: 25.0, unit: "كجم", category: "fruit" },
+            { name: "برتقال سكري", price: 25.0, unit: "كجم", category: "fruit" },
+            { name: "جوافة", price: 35.0, unit: "كجم", category: "fruit" },
+            { name: "رمان", price: 70.0, unit: "كجم", category: "fruit" },
+            { name: "مندولينا", price: 15.0, unit: "كجم", category: "fruit" },
+            { name: "يوسفي بلدي 1", price: 25.0, unit: "كجم", category: "fruit" },
+            { name: "يوسفي بلدي 2", price: 15.0, oldPrice: 20, unit: "كجم", category: "fruit" },
+            { name: "كنتالوب", price: 35.0, oldPrice: 40, unit: "كجم", category: "fruit" },
+            { name: "تمر القصيم (١ك)", price: 130.0, unit: "علبة", category: "fruit" },
+            { name: "أفوكادو مستورد", price: 280.0,  unit: "كجم", category: "fruit" }
+        ];
+
+        const WHATSAPP_NUMBER = '201032872750';
+
+        function displayCurrentDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('date-display').textContent = new Intl.DateTimeFormat('ar-EG', options).format(now);
+        }
+
+        function generatePriceList() {
+            let sWholesale = '', iWholesale = '', sVeg = '', sFruit = '', iVeg = '', iFruit = '';
+
+            // عروض الجملة
+            wholesaleData.forEach(p => {
+                const priceHTML = `<span class="text-gray-400 line-through text-xs ml-1">${p.oldPrice}</span><span class="text-red-600 font-bold">${p.price} ج</span>`;
+                sWholesale += `<tr class="static-row" data-name="${p.name}"><td class="px-4 py-3 text-lg font-medium">${p.name}<br><span class="offer-badge">عروض التوفير</span></td><td class="px-4 py-3 text-xl font-bold text-right">${priceHTML}</td></tr>`;
+                iWholesale += `<tr class="interactive-row wholesale-row" data-name="${p.name}" data-unit="${p.unit}"><td class="px-4 py-3 text-lg font-medium">${p.name}</td><td class="px-4 py-3 text-center font-bold text-red-600 text-sm align-middle">${priceHTML}</td><td class="px-4 py-3 align-middle w-[100px]"><select class="quantity-select w-full" data-unit="${p.unit}">${generateWeightOptions(p.unit)}</select></td></tr>`;
+            });
+
+            // الخضروات والفاكهة
+            productsData.forEach(p => {
+                const badge = p.oldPrice ? `<br><span class="offer-badge">عرض 🔥</span>` : '';
+                const priceHTML = p.oldPrice ? `<span class="text-gray-400 line-through text-xs ml-1">${p.oldPrice}</span><span class="text-red-600 font-bold">${p.price} ج</span>` : `<span>${p.price} ج</span>`;
+                const sRow = `<tr class="static-row" data-name="${p.name}"><td class="px-4 py-3 text-lg font-medium">${p.name}${badge}</td><td class="px-4 py-3 text-xl font-bold text-right">${priceHTML}</td></tr>`;
+                const iRow = `<tr class="interactive-row" data-name="${p.name}" data-unit="${p.unit}"><td class="px-4 py-3 text-lg font-medium">${p.name}${badge}</td><td class="px-4 py-3 text-center font-bold text-green-700 text-sm align-middle">${priceHTML}</td><td class="px-4 py-3 align-middle w-[100px]"><select class="quantity-select w-full" data-unit="${p.unit}">${generateWeightOptions(p.unit)}</select></td></tr>`;
+                
+                if (p.category === 'vegetable') { sVeg += sRow; iVeg += iRow; } else { sFruit += sRow; iFruit += iRow; }
+            });
+
+            document.getElementById('wholesale-tbody-static').innerHTML = sWholesale;
+            document.getElementById('wholesale-tbody-interactive').innerHTML = iWholesale;
+            document.getElementById('vegetables-tbody-static').innerHTML = sVeg;
+            document.getElementById('fruits-tbody-static').innerHTML = sFruit;
+            document.getElementById('vegetables-tbody-interactive').innerHTML = iVeg;
+            document.getElementById('fruits-tbody-interactive').innerHTML = iFruit;
+        }
+
+        function generateWeightOptions(unit) {
+            let options = '<option value="0" selected>-- طلب --</option>';
+            if (unit === 'كجم') {
+                const weights = [{ val: 0.125, text: '⅛ ك' }, { val: 0.25, text: '¼ ك' }, { val: 0.5, text: '½ ك' }, { val: 0.75, text: '¾ ك' }];
+                for (let i = 1; i <= 15; i++) {
+                    weights.push({ val: i, text: i + ' ك' });
+                    if (i < 15) weights.push({ val: i + 0.125, text: i + ' و⅛ ك' }, { val: i + 0.25, text: i + ' و¼ ك' }, { val: i + 0.5, text: i + ' و½ ك' }, { val: i + 0.75, text: i + ' و¾ ك' });
+                }
+                weights.forEach(w => options += `<option value="${w.val}">${w.text}</option>`);
+            } else {
+                for (let i = 1; i <= 10; i++) options += `<option value="${i}">${i} ${unit}</option>`;
+            }
+            return options;
+        }
+
+        // نظام التقييم المحدث
+        function setRating(val) {
+            document.getElementById('rating-value').value = val;
+            const stars = document.querySelectorAll('#star-container button');
+            stars.forEach((s, i) => s.classList.toggle('active', i < val));
+        }
+
+        function shareList() {
+            const text = `💰 أسعار الخضار والفاكهة اليوم طازجة! 🥦🍎\nشاهد قائمة الأسعار التفاعلية واطلب من هنا:\n${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function toggleView(v) {
+            document.getElementById('price-list-view').style.display = v === 'order-form-view' ? 'none' : 'block';
+            document.getElementById('order-form-view').style.display = v === 'order-form-view' ? 'block' : 'none';
+            document.getElementById('main-title').textContent = v === 'order-form-view' ? '🛒 نموذج طلب واتساب السريع' : '💰أسعار اليوم💰';
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        function generateWhatsAppOrder() {
+            let wholesaleStr = '', vegStr = '', fruitStr = '', count = 0;
+            
+            // عروض الجملة
+            document.querySelectorAll('#wholesale-tbody-interactive .interactive-row').forEach(row => {
+                const sel = row.querySelector('.quantity-select');
+                if (parseFloat(sel.value) > 0) { count++; wholesaleStr += `- ${sel.options[sel.selectedIndex].text} ${row.getAttribute('data-name')}\n`; }
+            });
+
+            // خضروات وفاكهة
+            document.querySelectorAll('#vegetables-tbody-interactive .interactive-row').forEach(row => {
+                const sel = row.querySelector('.quantity-select');
+                if (parseFloat(sel.value) > 0) { count++; vegStr += `- ${sel.options[sel.selectedIndex].text} ${row.getAttribute('data-name')}\n`; }
+            });
+
+            document.querySelectorAll('#fruits-tbody-interactive .interactive-row').forEach(row => {
+                const sel = row.querySelector('.quantity-select');
+                if (parseFloat(sel.value) > 0) { count++; fruitStr += `- ${sel.options[sel.selectedIndex].text} ${row.getAttribute('data-name')}\n`; }
+            });
+
+            if (count === 0) return alert('الرجاء اختيار صنف واحد على الأقل');
+
+            // معالجة التقييم للرسالة
+            const rating = parseInt(document.getElementById('rating-value').value);
+            const ratingDisplay = rating > 0 ? "⭐".repeat(rating) : "بدون تقييم";
+
+            let msg = `📝 *طلب جديد من قائمة الأسعار التفاعلية*:\n------------------\n`;
+            if (wholesaleStr) msg += `🔥 *عروض الكميات:*\n${wholesaleStr}\n`;
+            if (vegStr) msg += `🥬 *الخضروات:*\n${vegStr}\n`;
+            if (fruitStr) msg += `🍎 *الفواكه:*\n${fruitStr}\n`;
+            msg += `------------------\n⭐ *التقييم*: ${ratingDisplay}\n📌 *الملاحظات:* ${document.getElementById('notes').value || 'لا يوجد'}`;
+            
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function filterItems(type) {
+            const val = document.getElementById(type === 'static' ? 'search-input-static' : 'search-input-interactive').value.toLowerCase();
+            document.querySelectorAll(type === 'static' ? '.static-row' : '.interactive-row').forEach(row => { 
+                row.style.display = row.getAttribute('data-name').toLowerCase().includes(val) ? 'table-row' : 'none'; 
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            displayCurrentDateTime();
+            generatePriceList(); 
+        });
+    </script>
+</body>
+</html>
