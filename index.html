@@ -20,6 +20,7 @@
             --text-light: #ffffff;
             --bg-gray: #f9f9f9;
             --whatsapp-green: #25D366;
+            --facebook-blue: #1877F2;
             --border-color: #eeeeee;
         }
 
@@ -55,6 +56,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: bold;
         }
 
         .top-bar-left {
@@ -65,11 +67,16 @@
         .top-bar-left a {
             color: var(--text-light);
             text-decoration: none;
+            font-size: 15px;
             transition: color 0.3s ease;
         }
 
         .top-bar-left a:hover {
             color: var(--primary-yellow);
+        }
+
+        .top-bar-left a.fb-icon:hover {
+            color: var(--facebook-blue);
         }
 
         /* ==========================================================================
@@ -233,59 +240,43 @@
             font-size: 16px;
             font-weight: 700;
             color: var(--main-black);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .product-price {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             color: var(--main-black);
             margin-bottom: 15px;
         }
 
-        /* أزرار الشراء والمبيعات الكروت */
-        .btn-add-cart {
-            background-color: var(--primary-yellow);
-            color: var(--main-black);
-            border: none;
-            width: 100%;
-            padding: 10px;
-            font-weight: 700;
-            font-size: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 8px;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-add-cart:hover {
-            opacity: 0.9;
-        }
-
+        /* زر اطلب على الواتساب علطول الأساسي للبيع المباشر */
         .btn-whatsapp-order {
             background-color: var(--whatsapp-green);
             color: var(--text-light);
             border: none;
             width: 100%;
-            padding: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            border-radius: 5px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(37, 211, 102, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .btn-whatsapp-order:hover {
             background-color: #1ebe57;
+            transform: scale(1.02);
         }
 
         /* ==========================================================================
@@ -327,9 +318,15 @@
             gap: 15px;
         }
 
-        .footer-icons i {
-            font-size: 24px;
+        .footer-icons a {
+            font-size: 26px;
             color: var(--primary-yellow);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-icons a:hover {
+            color: var(--text-light);
         }
 
         .footer-bottom {
@@ -358,6 +355,8 @@
         @media (max-width: 768px) {
             .products-container {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 0 10px 40px;
             }
             .navbar {
                 padding-left: 40%;
@@ -391,14 +390,16 @@
     <!-- 1. الشريط العلوي (Top Bar) -->
     <div class="top-bar">
         <div class="top-bar-right">
+            <!-- ضع رقم واتساب الخاص بك هنا بعد رمز الدولة مباشرًا -->
             <a href="https://wa.me/201021422774" target="_blank">
-                <i class="fab fa-whatsapp"></i> اطلب الواتساب
+                <i class="fab fa-whatsapp"></i> اطلب على الواتساب علطول
             </a>
         </div>
         <div class="top-bar-left">
-            <a href="#"><i class="fab fa-youtube"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
+            <!-- استبدل علامة # برابط صفحة الفيسبوك الخاصة بمتجرك -->
+            <a href="#" class="fb-icon" target="_blank" title="تابعنا على فيسبوك"><i class="fab fa-facebook"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
         </div>
     </div>
 
@@ -409,25 +410,23 @@
             <li><a href="#mens">تشكيلة الرجالي</a></li>
             <li><a href="#womens">الحريمي الأنيق</a></li>
             <li><a href="#kids">عسل الأطفال</a></li>
-            <li><a href="#about">حكايتنا إيه؟</a></li>
             <li><a href="#contact">كلمـنا</a></li>
         </ul>
         <div class="logo-container">
-            <!-- صورة الشعار الأصلي الخاص بك -->
             <img src="1000158496.png" alt="شعار عروض التوفير">
         </div>
     </nav>
 
     <!-- 3. قسم البانر الإعلاني (Hero Section) -->
     <div class="hero-section">
-        <!-- صورة البانر المحدث المليء بالجودة والخامة والسعر -->
-        <img src="watermarked_img_9807214982760956293.png" alt="بنر عروض التوفير" class="hero-banner">
+        <!-- البانر الاحترافي المخصص الذي يركز على الجودة والخامة والسعر -->
+        <img src="watermarked_img_9807214982760956293.png" alt="بنر عروض التوفير للجودة والسعر" class="hero-banner">
     </div>
 
     <!-- 4. عنوان الأقسام وفلاتر العرض -->
     <div class="section-header">
         <h2>التشكيلة الرسمية لمتجرنا</h2>
-        <p>اختار اللي يعجبك من التشكيلة المتنوعة (رجالي، حريمي، وأطفال) وحط في السلة واطلب بضغطة زرار واحدة يا بطل!</p>
+        <p>اختار اللي يعجبك من التشكيلة المتنوعة (رجالي، حريمي، وأطفال) واطلب بضغطة زرار واحدة يا بطل!</p>
         
         <div class="filter-tabs">
             <button class="tab-btn active" onclick="filterCategory('all')"><i class="fas fa-th-large"></i> كله موجود (الكل)</button>
@@ -437,10 +436,10 @@
         </div>
     </div>
 
-    <!-- 5. شبكة المنتجات (Products Container) -->
+    <!-- 5. شبكة المنتجات للطلب المباشر السريع -->
     <div class="products-container" id="products-grid">
         
-        <!-- كارت 1: رجالي -->
+        <!-- منتج 1: رجالي -->
         <div class="product-card" data-category="mens">
             <div class="product-image-wrapper">
                 <img src="hoodie-yellow.jpg" alt="هودي قطني فاخر">
@@ -448,14 +447,13 @@
             <div>
                 <div class="product-title">هودي قطن مصري ثقيل دفا وراحة</div>
                 <div class="product-price">349 ج.م</div>
-                <button class="btn-add-cart" onclick="addToCart('هودي قطن مصري أصفر', 349)"><i class="fas fa-shopping-basket"></i> حط في السلة</button>
                 <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20هودي%20قطن%20مصري%20أصفر%20بسعر%20349%20ج.م" target="_blank" class="btn-whatsapp-order">
                     <i class="fab fa-whatsapp"></i> اطلب على الواتساب علطول
                 </a>
             </div>
         </div>
 
-        <!-- كارت 2: رجالي -->
+        <!-- منتج 2: رجالي -->
         <div class="product-card" data-category="mens">
             <div class="product-image-wrapper">
                 <img src="polo-yellow.jpg" alt="تيشرت بولو">
@@ -463,14 +461,13 @@
             <div>
                 <div class="product-title">تيشرت بولو قطن تقفيل عالي فاخر</div>
                 <div class="product-price">299 ج.م</div>
-                <button class="btn-add-cart" onclick="addToCart('تيشرت بولو أصفر', 299)"><i class="fas fa-shopping-basket"></i> حط في السلة</button>
-                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20تيشرت%20بولو%20أصفر" target="_blank" class="btn-whatsapp-order">
+                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20تيشرت%20بولو%20أصفر%20بسعر%20299%20ج.م" target="_blank" class="btn-whatsapp-order">
                     <i class="fab fa-whatsapp"></i> اطلب على الواتساب علطول
                 </a>
             </div>
         </div>
 
-        <!-- كارت 3: حريمي -->
+        <!-- منتج 3: حريمي -->
         <div class="product-card" data-category="womens">
             <div class="product-image-wrapper">
                 <img src="womens-tshirt.jpg" alt="تيشرت حريمي">
@@ -478,14 +475,13 @@
             <div>
                 <div class="product-title">تيشيرت حريمي صيفي قطن 100% ناعم</div>
                 <div class="product-price">199 ج.م</div>
-                <button class="btn-add-cart" onclick="addToCart('تيشيرت حريمي صيفي', 199)"><i class="fas fa-shopping-basket"></i> حط في السلة</button>
-                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20تيشيرت%20حريمي%20صيفي" target="_blank" class="btn-whatsapp-order">
+                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20تيشيرت%20حريمي%20صيفي%20بسعر%20199%20ج.م" target="_blank" class="btn-whatsapp-order">
                     <i class="fab fa-whatsapp"></i> اطلب على الواتساب علطول
                 </a>
             </div>
         </div>
 
-        <!-- كارت 4: أطفال -->
+        <!-- منتج 4: أطفال -->
         <div class="product-card" data-category="kids">
             <div class="product-image-wrapper">
                 <img src="kids-hoodie.jpg" alt="هودي أطفال">
@@ -493,8 +489,7 @@
             <div>
                 <div class="product-title">هودي قطن للأطفال خامة ممتازة ومريحة</div>
                 <div class="product-price">199 ج.م</div>
-                <button class="btn-add-cart" onclick="addToCart('هودي قطن للأطفال', 199)"><i class="fas fa-shopping-basket"></i> حط في السلة</button>
-                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20هودي%20قطن%20للأطفال" target="_blank" class="btn-whatsapp-order">
+                <a href="https://wa.me/201021422774?text=يا%20غالي%20عايز%20اطلب%20هودي%20قطن%20للأطفال%20بسعر%20199%20ج.م" target="_blank" class="btn-whatsapp-order">
                     <i class="fab fa-whatsapp"></i> اطلب على الواتساب علطول
                 </a>
             </div>
@@ -510,9 +505,9 @@
                 <p>- للملابس القطنية - ولملابس التصدير -</p>
             </div>
             <div class="footer-icons">
-                <i class="fas fa-seedling"></i>
-                <i class="fas fa-box-open"></i>
-                <i class="fas fa-globe"></i>
+                <!-- استبدل علامة # برابط الفيسبوك هنا أيضًا -->
+                <a href="#" target="_blank" title="صفحتنا على فيسبوك"><i class="fab fa-facebook"></i></a>
+                <a href="https://wa.me/201021422774" target="_blank" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -523,7 +518,6 @@
 
     <!-- 7. الأكواد التفاعلية (JavaScript) -->
     <script>
-        // دالة التحكم في تصفية الأقسام
         function filterCategory(category) {
             const buttons = document.querySelectorAll('.tab-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
@@ -537,11 +531,6 @@
                     card.style.display = 'none';
                 }
             });
-        }
-
-        // تفاعل إضافة منتج إلى السلة
-        function addToCart(name, price) {
-            alert("تم إضافة " + name + " في السلة بنجاح! الحساب: " + price + " ج.م");
         }
     </script>
 </body>
