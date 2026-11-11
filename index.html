@@ -36,7 +36,7 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 16px; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s;
         }
-        .item-name-part { flex: 1.3; text-align: right; font-weight: 600; font-size: 1rem; }
+        .item-name-part { flex: 1.3; text-align: right; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
 
         .rating-card {
             background: white; border: 2px dashed #fbbf24; border-radius: 20px;
@@ -59,14 +59,12 @@
         }
 
         .not-available { opacity: 0.4; pointer-events: none; background-color: #fcfcfc; }
-        .out-of-stock-msg { color: #dc2626; font-size: 0.75rem; font-weight: bold; }
         
         .badge-container { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: nowrap; }
         .offer-badge, .storage-badge { padding: 2px 7px; border-radius: 99px; font-size: 9.5px; font-weight: bold; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
         .offer-badge { background: #ef4444; color: white; }
         .storage-badge { background: #3b82f6; color: white; }
         
-        /* شارة النجمة المجاورة للاسم في نفس السطر مع خاصية التلميح (Tooltip) */
         .special-star {
             font-size: 13.5px;
             cursor: pointer;
@@ -76,9 +74,7 @@
             vertical-align: middle;
             transition: transform 0.2s ease;
         }
-        .special-star:hover {
-            transform: scale(1.25);
-        }
+        .special-star:hover { transform: scale(1.25); }
         .special-star::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -99,28 +95,26 @@
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .special-star:hover::after {
-            opacity: 1;
-            visibility: visible;
-        }
+        .special-star:hover::after { opacity: 1; visibility: visible; }
 
-        /* صورة المنتجات */
+        /* مكان وتنسيق صورة المنتجات المحددة بجوار الاسم */
         .product-img {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-left: 8px;
-            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            border: 1.5px solid #e5e7eb;
+            flex-shrink: 0;
+            background-color: #f3f4f6;
         }
     </style>
 </head>
 <body class="p-2 md:p-8 text-right" dir="rtl">
 
-    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-4 md:p-10 border-4 border-green-500/40">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-4 md:p-10 border-4 border-green-500/45">
 
         <header class="text-center mb-6">
-            <h1 class="text-3xl font-extrabold text-green-700 mb-4" id="main-title">💰أسعار اليوم💰</h1>
+            <h1 class="text-3xl font-extrabold text-green-700 mb-4">💰أسعار اليوم ونموذج الطلب💰</h1>
             <div class="mb-4">
                 <img src="https://i.ibb.co/Q7Yj5W9w/1777641348311.png" alt="الشعار" class="mx-auto w-32 h-32 rounded-full border-4 border-yellow-400 shadow-xl object-cover">
                 <p class="text-lg font-bold text-gray-600 mt-2">خُبراء الخضار والفاكهة</p>
@@ -129,129 +123,104 @@
         </header>
 
         <!-- قسم أهلاً بك وتكرار آخر طلب -->
-        <div id="welcome-section" class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-4 mb-6 shadow-sm">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-4 mb-6 shadow-sm">
             <h2 class="text-xl font-extrabold text-green-800 mb-1">أهلاً بك 👋</h2>
-            <p class="text-xs font-semibold text-gray-600 mb-3">اطلب احتياجاتك بسهولة، ونحن نوصلها لحد باب بيتك.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button onclick="toggleView('order-form-view')" class="bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-green-700 active:scale-95 transition text-center flex flex-col justify-center items-center">
-                    <span class="text-base">🛒 ابدأ طلبًا جديدًا</span>
-                    <span class="text-[11px] font-normal opacity-90">اختر الخضروات والفاكهة والكميات</span>
-                </button>
-                <button id="repeat-order-btn" onclick="openRepeatOrdersModal()" class="bg-white border-2 border-green-600 text-green-700 font-bold py-3 px-4 rounded-xl shadow-sm hover:bg-green-50 active:scale-95 transition text-center flex flex-col justify-center items-center">
-                    <span class="text-base">🔄 كرر آخر طلب</span>
-                    <span id="repeat-order-subtext" class="text-[11px] font-normal text-gray-500">استعد طلباتك السابقة وسجل بياناتك</span>
+            <p class="text-xs font-semibold text-gray-600 mb-3">اختر احتياجاتك مباشرة من القائمة أدناه، وسنصلك لحد باب بيتك.</p>
+            <div>
+                <button id="repeat-order-btn" onclick="openRepeatOrdersModal()" class="w-full bg-white border-2 border-green-600 text-green-700 font-bold py-3 px-4 rounded-xl shadow-sm hover:bg-green-50 active:scale-95 transition text-center flex justify-center items-center gap-2">
+                    <span class="text-base">🔄 كرر طلبًا سابقًا</span>
+                    <span id="repeat-order-subtext" class="text-xs font-normal text-gray-500"></span>
                 </button>
             </div>
         </div>
 
-        <div id="price-list-view">
-            <div id="share-btn-container" class="fixed top-4 right-4 z-50 flex items-center shadow-lg rounded-full">
-                <button onclick="document.getElementById('share-btn-container').style.display='none'" 
-                        class="bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-sm -ml-2 z-10 hover:bg-red-600 transition">
-                    ✕
-                </button>
-                
-                <button onclick="shareProject()" class="bg-yellow-400 p-2 px-3 rounded-full flex items-center gap-1.5 border border-yellow-500 active:scale-95 transition">
-                    <span class="text-black font-bold text-xs">مشاركة القائمة</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="18" cy="5" r="3"></circle>
-                        <circle cx="6" cy="12" r="3"></circle>
-                        <circle cx="18" cy="19" r="3"></circle>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="bg-red-50 text-red-700 font-bold p-2 rounded-xl border-2 border-red-200 mb-8 flex items-center justify-center gap-2 animate-pulse">
-                <span class="text-sm md:text-base whitespace-nowrap">🔴 يُرجى تحديث الصفحة قبل الطلب</span>
-                <button onclick="window.location.reload();" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-700 active:scale-95 transition shadow-sm">تحديث الآن 🔄</button>
-            </div>
-
-            <div style="text-align: center; padding: 8px 2px; background: #fdfdfd; border-radius: 8px; margin: 10px auto; border: 1px solid #eee; width: 95%; overflow: hidden;">
-                <div style="white-space: nowrap; font-family: sans-serif; display: flex; justify-content: center; align-items: center; gap: 4px;">
-                    <span style="color: #888; font-size: 10px;">متاح الدفع عبر:</span>
-                    <strong style="color: #e60000; font-size: 10px;">Vodafone Cash</strong>
-                    <span style="color: #ddd;">|</span>
-                    <strong style="color: #5b2d82; font-size: 10px;">InstaPay</strong>
-                    <span style="color: #ddd;">|</span>
-                    <strong style="color: #28a745; font-size: 10px;">أو عند الاستلام</strong>
-                </div>
-            </div>
-
-            <div class="new-arrival-bar" style="overflow: hidden; direction: ltr;">
-                <div class="scrolling-text">
-                 ✨اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ✨ 
-               </div>
-            </div> 
-
-            <div class="relative mb-6">
-                <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="🔍 ابحث عن صنف (طماطم، موز، بصل...)" 
-                class="w-full p-3 pr-10 border-2 border-green-500 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-green-600 shadow-sm">
-            </div>
-
-            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
-                <h2 class="bg-green-600 text-white text-2xl font-bold p-3 text-center">🥬🍅 خضروات 🌶️🥦</h2>
-                <div id="vegetables-list-static"></div>
-            </section>
-
-            <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
-                <h2 class="bg-yellow-500 text-white text-2xl font-bold p-3 text-center">🍎🥝 فواكه 🍉🍒</h2>
-                <div id="fruits-list-static"></div>
-            </section>
-
-            <button onclick="toggleView('order-form-view')" class="w-full mt-4 mb-12 bg-blue-600 text-white font-bold py-4 rounded-xl shadow-xl text-xl active:scale-95 transition">
-                🛒 ابدأ طلبك الآن! 
+        <div id="share-btn-container" class="fixed top-4 right-4 z-50 flex items-center shadow-lg rounded-full">
+            <button onclick="document.getElementById('share-btn-container').style.display='none'" 
+                    class="bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-sm -ml-2 z-10 hover:bg-red-600 transition">
+                ✕
+            </button>
+            <button onclick="shareProject()" class="bg-yellow-400 p-2 px-3 rounded-full flex items-center gap-1.5 border border-yellow-500 active:scale-95 transition">
+                <span class="text-black font-bold text-xs">مشاركة القائمة</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
             </button>
         </div>
 
-        <!-- شاشة مراجعة الطلب واستكمال البيانات -->
-        <div id="order-form-view" style="display: none;">
-            <button onclick="toggleView('price-list-view')" class="w-full mb-4 bg-gray-400 text-white font-bold py-3 rounded-xl">🔙 العودة لقائمة الأسعار</button>
+        <div class="bg-red-50 text-red-700 font-bold p-2 rounded-xl border-2 border-red-200 mb-8 flex items-center justify-center gap-2 animate-pulse">
+            <span class="text-sm md:text-base whitespace-nowrap">🔴 يُرجى تحديث الصفحة قبل الطلب</span>
+            <button onclick="window.location.reload();" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-700 active:scale-95 transition shadow-sm">تحديث الآن 🔄</button>
+        </div>
 
-            <button onclick="shareProject()" class="w-full mb-6 bg-yellow-500 text-black font-bold py-3 rounded-xl shadow-md text-base flex items-center justify-center gap-2 active:scale-95 transition">
-                📢 شارك القائمة مع أصدقائك
-            </button>
+        <div style="text-align: center; padding: 8px 2px; background: #fdfdfd; border-radius: 8px; margin: 10px auto; border: 1px solid #eee; width: 95%; overflow: hidden;">
+            <div style="white-space: nowrap; font-family: sans-serif; display: flex; justify-content: center; align-items: center; gap: 4px;">
+                <span style="color: #888; font-size: 10px;">متاح الدفع عبر:</span>
+                <strong style="color: #e60000; font-size: 10px;">Vodafone Cash</strong>
+                <span style="color: #ddd;">|</span>
+                <strong style="color: #5b2d82; font-size: 10px;">InstaPay</strong>
+                <span style="color: #ddd;">|</span>
+                <strong style="color: #28a745; font-size: 10px;">أو عند الاستلام</strong>
+            </div>
+        </div>
 
+        <div class="new-arrival-bar" style="overflow: hidden; direction: ltr;">
+            <div class="scrolling-text">
+             ✨اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ✨ 
+           </div>
+        </div> 
+
+        <div class="relative mb-6">
+            <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="🔍 ابحث عن صنف (طماطم، موز، بصل...)" 
+            class="w-full p-3 pr-10 border-2 border-green-500 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-green-600 shadow-sm">
+        </div>
+
+        <!-- قائمة الخضروات والفواكه المدمجة في نفس الصفحة -->
+        <section class="border rounded-xl overflow-hidden shadow-lg mb-8">
+            <h2 class="bg-green-600 text-white text-2xl font-bold p-3 text-center">🥬🍅 الخضروات 🌶️🥦</h2>
+            <div id="vegetables-list-interactive"></div>
+        </section>
+
+        <section class="border rounded-xl overflow-hidden shadow-lg mb-10">
+            <h2 class="bg-yellow-500 text-white text-2xl font-bold p-3 text-center">🍎🥝 الفواكه 🍉🍒</h2>
+            <div id="fruits-list-interactive"></div>
+        </section>
+
+        <!-- نموذج استكمال البيانات وإرسال الطلب (في نفس الصفحة أسفل القائمة) -->
+        <div id="order-checkout-section" class="bg-gray-50 border-4 border-green-600 rounded-3xl p-4 md:p-6 shadow-xl mb-12">
+            <h2 class="text-2xl font-extrabold text-green-800 mb-4 text-center border-b pb-3">📝 بيانات التوصيل وإرسال الطلب</h2>
+            
             <form id="order-form" onsubmit="event.preventDefault(); generateWhatsAppOrder();">
-                <div class="mb-6 border-2 border-green-500 rounded-2xl overflow-hidden shadow-md bg-white">
-                    <h2 class="bg-green-600 text-white p-3 text-center font-extrabold text-xl">🛒 مراجعة مشترياتك وتحديد الأصناف</h2>
-                    <div id="interactive-lists-combined"></div>
-                </div>
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الاسم الكريم:</label>
+                        <input type="text" id="cust-name" oninput="saveCustomerData()" placeholder="اكتب اسمك..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm bg-white">
+                    </div>
 
-                <!-- حقول بيانات العميل المخصصة للتخزين التلقائي -->
-                <div class="bg-white p-5 border-2 border-blue-200 rounded-2xl shadow-sm mb-6">
-                    <h3 class="text-lg font-bold text-blue-800 mb-3 border-b pb-2">📍 بيانات التوصيل والتواصل</h3>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">الاسم الكريم:</label>
-                            <input type="text" id="cust-name" oninput="saveCustomerData()" placeholder="اكتب اسمك..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm">
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم الموبايل للتواصل:</label>
+                        <input type="tel" id="cust-phone" oninput="saveCustomerData()" placeholder="010xxxxxxxx" class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm bg-white">
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">رقم الموبايل للتواصل:</label>
-                            <input type="tel" id="cust-phone" oninput="saveCustomerData()" placeholder="010xxxxxxxx" class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm">
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">العنوان بالتفصيل:</label>
+                        <input type="text" id="cust-address" oninput="saveCustomerData()" placeholder="اسم الشارع / الشارع الجانبي / رقم العمائر أو الدور..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm bg-white">
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">العنوان بالتفصيل:</label>
-                            <input type="text" id="cust-address" oninput="saveCustomerData()" placeholder="اسم الشارع / الشارع الجانبي / رقم العمائر أو الدور..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm">
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">علامة مميزة للعنوان (إن وجدت):</label>
+                        <input type="text" id="cust-landmark" oninput="saveCustomerData()" placeholder="بجوار كذا / أمام سوبر ماركت..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm bg-white">
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">علامة مميزة للعنوان (إن وجدت):</label>
-                            <input type="text" id="cust-landmark" oninput="saveCustomerData()" placeholder="بجوار كذا / أمام سوبر ماركت..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">ملاحظات إضافية للطلب:</label>
-                            <textarea id="notes" rows="3" placeholder="أي ملاحظات خاصة بالتجهيز أو التوصيل..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm"></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">ملاحظات إضافية للطلب:</label>
+                        <textarea id="notes" rows="3" placeholder="أي ملاحظات خاصة بالتجهيز أو التوصيل..." class="w-full p-3 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-green-500 outline-none text-sm bg-white"></textarea>
                     </div>
                 </div>
 
-                <!-- التنبيه التوضيحي للوزن بدون أسعار -->
                 <div class="bg-yellow-50 border border-yellow-300 p-4 rounded-xl text-center text-xs font-bold text-yellow-800 mb-6 shadow-sm">
                     ⚠️ سيتم تحديد الحساب النهائي بعد تجهيز الطلب والوزن الفعلي وإبلاغك بالقيمة الفعليّة.
                 </div>
@@ -261,8 +230,8 @@
         </div>
 
         <div id="reviews-view" style="display: none;" class="mb-10">
-            <button onclick="toggleView('price-list-view')" class="w-full mb-6 bg-gray-400 text-white font-bold py-4 rounded-2xl shadow-md text-lg">
-                🔙 العودة لقائمة الأسعار
+            <button onclick="document.getElementById('reviews-view').style.display='none'" class="w-full mb-6 bg-gray-400 text-white font-bold py-4 rounded-2xl shadow-md text-lg">
+                🔙 إخفاء المراجعات والعودة للقائمة
             </button>
             <div id="reviews-container" class="space-y-4"></div>
         </div>
@@ -284,7 +253,7 @@
         <footer class="mt-12 pt-6 border-t-2 text-center">
             <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-6 font-bold text-gray-700 text-sm italic">🕒 مواعيد العمل من 7 ص إلى 4:15 م يومياً عدا الجمعة</div>
 
-            <button onclick="toggleView('reviews-view')" 
+            <button onclick="const rv = document.getElementById('reviews-view'); rv.style.display = rv.style.display === 'none' ? 'block' : 'none'; window.scrollTo(0, rv.offsetTop);" 
                     class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl inline-block shadow-md mb-4 text-lg active:scale-95 transition flex items-center justify-center gap-2">
                 ⭐ مراجعات وآراء عملاءنا الكرام
             </button>
@@ -300,19 +269,19 @@
         </footer>
     </div>
 
-    <!-- شريط الطلب السفلي الثابت (Floating Sticky Cart Bar) بدون أي أسعار -->
+    <!-- شريط الطلب السفلي الثابت للانتقال المباشر لنموذج البيانات -->
     <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl">
         <div class="flex items-center gap-2">
             <span class="bg-yellow-400 text-black font-extrabold px-3 py-1 rounded-full text-sm" id="sticky-cart-count">0 أصناف</span>
-            <span class="text-xs font-semibold text-green-100 hidden sm:inline">طلبك الحالي في السلة</span>
+            <span class="text-xs font-semibold text-green-100 hidden sm:inline">تم اختيار أصناف للطلب</span>
         </div>
-        <button onclick="toggleView('order-form-view')" class="bg-yellow-400 text-black font-extrabold px-5 py-2 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center gap-1">
-            <span>مراجعة الطلب</span>
-            <span>←</span>
+        <button onclick="scrollToCheckout()" class="bg-yellow-400 text-black font-extrabold px-5 py-2 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center gap-1">
+            <span>اذهب لبيانات التوصيل</span>
+            <span>↓</span>
         </button>
     </div>
 
-    <!-- نافذة منبثقة لاستعادة آخر 3 طلبات (Modal) -->
+    <!-- نافذة منبثقة لاستعادة آخر الطلبات -->
     <div id="repeat-orders-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl border-2 border-green-500 relative">
             <button onclick="closeRepeatOrdersModal()" class="absolute top-3 left-3 bg-gray-200 text-gray-700 w-7 h-7 rounded-full font-bold text-xs hover:bg-gray-300">✕</button>
@@ -335,7 +304,7 @@ async function shareProject() {
             navigator.clipboard.writeText(window.location.href);
             alert("تم نسخ رابط القائمة، يمكنك الآن لصقه وإرساله لأصدقائك! ✅");
         }
-    } catch (err) { console.log("Error: " + err); }
+    } catch (err) { console.log(err); }
 }
 
 let manualWorkStatus = 'تلقائي';
@@ -451,7 +420,7 @@ let productsData = [
     { name: "عنب أحمر كريمسون", price: 100, unit: "كجم", category: "fruit", available: true, trend: "up" },
     { name: "عنب ببذر", price: 35, unit: "كجم", category: "fruit", available: true, minWeight: 0.5 },
     { name: "بلح أسمر", price: 40, unit: "كجم", category: "fruit", available: true, trend: "up", minWeight: 0.5 },
-    { name: "بروقوق يوناني", price: 120, unit: "كجم", category: "fruit", available: true },
+    { name: "برقوق يوناني", price: 120, unit: "كجم", category: "fruit", available: true },
     { name: "كمثرى", price: 100, unit: "كجم", category: "fruit", available: false},
     { name: "كاكا", price: 60, unit: "كجم", category: "fruit", available: true, minWeight: 0.5 },
     { name: "مانجو كيت", price: 70, unit: "كجم", category: "fruit", available: true, isSpecial: false, minWeight: 1},
@@ -592,7 +561,7 @@ async function loadPricesFromSheet() {
             const storageText = get(row, 'مناسب للتخزين');
             product.isStorage = yes(storageText);
 
-            // إضافة رابط الصورة من الشيت إن وجد
+            // قراءة رابط الصورة من الشيت
             const imgUrl = get(row, 'رابط الصورة');
             if (imgUrl) product.img = imgUrl;
 
@@ -612,24 +581,20 @@ function init() {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         document.getElementById('date-display').innerText = now.toLocaleDateString('ar-EG', options).replace(" في ", " - ");
 
-        let sVeg = '', sFruit = '', iAll = '';
+        let iVeg = '', iFruit = '';
         productsData.forEach(p => {
             const specialBadge = p.isSpecial ? `<span class="special-star" data-tooltip="مميز">⭐</span>` : '';
             const offerBadge = p.oldPrice ? `<span class="offer-badge">عرض 🔥</span>` : '';
             const storageBadge = p.isStorage ? `<span class="storage-badge">مناسب للتخزين 🧊</span>` : '';
+            
+            // مكان وتنسيق صورة المنتج بجوار الاسم (إذا وُجد رابط صورة في الشيت)
             const imgTag = p.img ? `<img src="${p.img}" alt="${p.name}" class="product-img">` : '';
 
             let trendArrow = '';
             if (p.trend === 'down') {
-                trendArrow = `
-                    <svg class="w-3.5 h-3.5 text-red-600 animate-pulse inline-block" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 21l-10-18h20z"/>
-                    </svg>`;
+                trendArrow = `<svg class="w-3.5 h-3.5 text-red-600 animate-pulse inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21l-10-18h20z"/></svg>`;
             } else if (p.trend === 'up') {
-                trendArrow = `
-                    <svg class="w-3.5 h-3.5 text-green-600 inline-block" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3l10 18h-20z"/>
-                    </svg>`;
+                trendArrow = `<svg class="w-3.5 h-3.5 text-green-600 inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l10 18h-20z"/></svg>`;
             }
 
             const priceDiv = `
@@ -641,20 +606,8 @@ function init() {
                     </div>
                 </div>`;
 
-            const sRow = `<div class="flex-row-item ${p.available ? '' : 'not-available'}">
-                <div class="item-name-part flex items-center">
-                    ${imgTag}
-                    <div>
-                        <div style="white-space: nowrap; display: inline-flex; align-items: center;"><span>${p.name}</span>${specialBadge}</div>
-                        <div class="badge-container">${storageBadge}${offerBadge}</div>
-                        ${p.available ? '' : '<div class="text-red-500 font-bold text-xs mt-1">(غير متوفر)</div>'}
-                    </div>
-                </div>
-                ${p.available ? priceDiv : '<div class="text-red-500 font-bold text-xs">---</div>'}
-            </div>`;
-
             const iRow = `<div class="flex-row-item ${p.available ? '' : 'not-available'}">
-                <div class="item-name-part text-sm flex items-center">
+                <div class="item-name-part text-sm">
                     ${imgTag}
                     <div>
                         <div class="font-bold" style="white-space: nowrap; display: inline-flex; align-items: center;"><span>${p.name}</span>${specialBadge}</div>
@@ -666,20 +619,20 @@ function init() {
                         </div>
                     </div>
                 </div>
-                <div class="item-action-part">${p.available ? `<select class="quantity-select" onchange="updateStickyCartBar()" data-unit="${p.unit}" data-name="${p.name}"></select>` : '<span class="text-red-500 font-bold text-xs">غير متوفر</span>'}</div>
+                <div class="item-action-part">
+                    ${p.available ? `<select class="quantity-select" onchange="updateStickyCartBar()" data-unit="${p.unit}" data-name="${p.name}"></select>` : '<span class="text-red-500 font-bold text-xs">غير متوفر</span>'}
+                </div>
             </div>`;
 
             if (p.category === 'fruit') {
-                sFruit += sRow;
+                iFruit += iRow;
             } else {
-                sVeg += sRow;
+                iVeg += iRow;
             }
-            iAll += iRow;
         });
 
-        document.getElementById('vegetables-list-static').innerHTML = sVeg;
-        document.getElementById('fruits-list-static').innerHTML = sFruit;
-        document.getElementById('interactive-lists-combined').innerHTML = iAll;
+        document.getElementById('vegetables-list-interactive').innerHTML = iVeg;
+        document.getElementById('fruits-list-interactive').innerHTML = iFruit;
 
         document.querySelectorAll('.quantity-select').forEach(s => {
             let opts = '<option value="0">-- طلب --</option>';
@@ -733,49 +686,14 @@ if (document.readyState === 'loading') {
     startApp();
 }
 
-function toggleView(v) {
-    updateWorkSchedule();
-
-    const priceView = document.getElementById('price-list-view');
-    const orderView = document.getElementById('order-form-view');
-    const reviewsView = document.getElementById('reviews-view');
-    const welcomeSec = document.getElementById('welcome-section');
-    const mainTitle = document.getElementById('main-title');
-
-    if (v === 'order-form-view') {
-        if (holidayMode) {
-            alert("❤️ نحن في إجازتنا الأسبوعية.\nسنعاود استقبال الطلبات يوم السبت الساعة 7 صباحاً إن شاء الله.");
-            return;
-        }
-
-        if (closeAfterHoursMode) {
-            alert("🚨 نحن الآن خارج أوقات العمل.\n\nيمكنكم الإطلاع على قائمة الأسعار، وسنكون في انتظاركم عند بدء استقبال الطلبات الساعة 7 صباحاً إن شاء الله! ❤️");
-            return;
-        }
+// التمرير السريع لقسم بيانات التوصيل عند الضغط على الشريط السفلي
+function scrollToCheckout() {
+    const checkoutSec = document.getElementById('order-checkout-section');
+    if (checkoutSec) {
+        checkoutSec.scrollIntoView({ behavior: 'smooth' });
     }
-
-    if(priceView) priceView.style.display = 'none';
-    if(orderView) orderView.style.display = 'none';
-    if(reviewsView) reviewsView.style.display = 'none';
-
-    if (v === 'order-form-view') {
-        orderView.style.display = 'block';
-        if(welcomeSec) welcomeSec.style.display = 'none';
-        mainTitle.textContent = '🛒 نموذج طلب واتساب';
-    } else if (v === 'reviews-view') {
-        reviewsView.style.display = 'block';
-        if(welcomeSec) welcomeSec.style.display = 'none';
-        mainTitle.textContent = '⭐⭐ مراجعات وآراء عملاءنا الكرام ⭐⭐';
-    } else {
-        priceView.style.display = 'block';
-        if(welcomeSec) welcomeSec.style.display = 'block';
-        mainTitle.textContent = '💰أسعار اليوم💰';
-    }
-
-    window.scrollTo(0, 0);
 }
 
-// تحديث شريط الطلب الثابت أسفل الشاشة
 function updateStickyCartBar() {
     let count = 0;
     document.querySelectorAll('.quantity-select').forEach(s => {
@@ -793,9 +711,7 @@ function updateStickyCartBar() {
     }
 }
 
-// ==========================================
 // حفظ بيانات العميل وتكرار الطلبات (LocalStorage)
-// ==========================================
 function saveCustomerData() {
     const data = {
         name: document.getElementById('cust-name').value,
@@ -821,9 +737,7 @@ function loadCustomerData() {
 
 function saveOrderToHistory(orderItems) {
     let history = [];
-    try {
-        history = JSON.parse(localStorage.getItem('shirbin_orders_history')) || [];
-    } catch(e) {}
+    try { history = JSON.parse(localStorage.getItem('shirbin_orders_history')) || []; } catch(e) {}
 
     const newOrder = {
         date: new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
@@ -831,7 +745,7 @@ function saveOrderToHistory(orderItems) {
     };
 
     history.unshift(newOrder);
-    if (history.length > 3) history = history.slice(0, 3); // الاحتفاظ بآخر 3 طلبات فقط
+    if (history.length > 3) history = history.slice(0, 3);
     localStorage.setItem('shirbin_orders_history', JSON.stringify(history));
     checkPreviousOrdersCount();
 }
@@ -843,11 +757,9 @@ function checkPreviousOrdersCount() {
     const subtext = document.getElementById('repeat-order-subtext');
     if (!btn) return;
     if (history.length === 0) {
-        btn.classList.add('opacity-60');
-        subtext.textContent = 'لا توجد طلبات سابقة محفوظة';
+        subtext.textContent = '(لا توجد طلبات سابقة محفوظة)';
     } else {
-        btn.classList.remove('opacity-60');
-        subtext.textContent = `لديك ${history.length} طلبات سابقة محفوظة`;
+        subtext.textContent = `(لديك ${history.length} طلبات سابقة)`;
     }
 }
 
@@ -886,45 +798,35 @@ function restoreOrder(index) {
     if (!selected) return;
 
     let unavailableCount = 0;
-    // إعادة تصفير النموذج
     document.querySelectorAll('.quantity-select').forEach(s => s.value = "0");
 
     selected.items.forEach(item => {
         const product = productsData.find(p => p.name === item.name);
         if (product && product.available) {
             const select = document.querySelector(`.quantity-select[data-name="${item.name}"]`);
-            if (select) {
-                select.value = item.val;
-            }
+            if (select) select.value = item.val;
         } else {
             unavailableCount++;
         }
     });
 
     closeRepeatOrdersModal();
-    toggleView('order-form-view');
+    window.scrollTo(0, 0);
     updateStickyCartBar();
 
     if (unavailableCount > 0) {
         alert(`تم استعادة طلبك بنجاح! ⚠️ ولكن تعذر إضافة ${unavailableCount} صنف لعدم توفرها في قائمة اليوم.`);
     } else {
-        alert("تم استعادة جميع أصناف طلبك بنجاح! ✅ يمكنك مراجعته وتعديله الآن قبل الإرسال.");
+        alert("تم استعادة جميع أصناف طلبك بنجاح! ✅ يمكنك مراجعتها بالأسفل وإرسالها.");
     }
 }
 
-// دالة توليد رسالة واتساب المنسقة بدقة
+// توليد رسالة واتساب بالشكل المطلوب تماماً
 function generateWhatsAppOrder() {
     updateWorkSchedule();
 
-    if (holidayMode) {
-        alert("❤️ نحن في إجازتنا الأسبوعية.\nلا يمكن إرسال الطلبات حالياً، وسنعاود العمل السبت الساعة 7 صباحاً إن شاء الله.");
-        return;
-    }
-
-    if (closeAfterHoursMode) {
-        alert("🚨 انتهت مواعيد استقبال الطلبات اليوم.\nيمكنك تصفح القائمة الآن وإرسال طلبك صباحاً.");
-        return;
-    }
+    if (holidayMode) { alert("❤️ نحن في إجازتنا الأسبوعية."); return; }
+    if (closeAfterHoursMode) { alert("🚨 انتهت مواعيد استقبال الطلبات اليوم."); return; }
 
     let vegItems = '', fruitItems = '', count = 0;
     let currentOrderItems = [];
@@ -942,18 +844,13 @@ function generateWhatsAppOrder() {
                 vegItems += itemLine;
             }
 
-            currentOrderItems.push({
-                name: itemName,
-                val: s.value,
-                qText: quantityText
-            });
+            currentOrderItems.push({ name: itemName, val: s.value, qText: quantityText });
             count++;
         }
     });
 
-    if (count === 0) return alert("من فضلك اختر صنف واحد على الأقل!");
+    if (count === 0) return alert("من فضلك اختر صنف واحد على الأقل من القائمة!");
 
-    // حفظ بيانات العميل والطلب في الذاكرة المحلية
     saveCustomerData();
     saveOrderToHistory(currentOrderItems);
 
@@ -984,18 +881,12 @@ function confirmMyRating() {
     const selectedStar = document.querySelector('input[name="rating"]:checked');
     if (!selectedStar) return alert("من فضلك اختر عدد النجوم أولاً! 😊");
     const stars = parseInt(selectedStar.value);
-    const myWhatsAppNumber = "201032872750";
-
     if (stars >= 4) {
-        if (confirm(`شكراً لتقييمك الراقي بـ ${stars} نجوم! ⭐\nهل تود دعمنا بكتابة رأيك الجميل على صفحة فيسبوك؟`)) {
-            finalizeRating(); window.open("https://www.facebook.com/3oroadtawfeer", '_blank');
-        }
+        if (confirm(`شكراً لتقييمك الراقي بـ ${stars} نجوم! ⭐`)) { finalizeRating(); window.open("https://www.facebook.com/3oroadtawfeer", '_blank'); }
     } else {
-        if (confirm(`نعتذر عن أي تقصير (تقييمك ${stars} نجوم) ⭐\nهل تود مراسلتنا على واتساب لنعرف سبب التقييم ونقدم الحل المناسب بإذن الله`)) {
+        if (confirm(`نعتذر عن أي تقصير (تقييمك ${stars} نجوم)`)) {
             finalizeRating();
-            let starEmojis = '⭐'.repeat(stars);
-            let msg = `⚠️ ملاحظة عميل: تقييم  ${stars} نجوم ${starEmojis}(من فضلك اكتب ملاحظاتك هنا)`;
-            window.open(`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/201032872750?text=${encodeURIComponent('⚠️ ملاحظة عميل: تقييم ' + stars + ' نجوم')}`, '_blank');
         }
     }
 }
@@ -1008,57 +899,11 @@ function finalizeRating() {
 
 function filterProducts() {
     const term = document.getElementById('search-input').value.toLowerCase();
-    const rows = document.querySelectorAll('.flex-row-item');
-
-    rows.forEach(row => {
+    document.querySelectorAll('.flex-row-item').forEach(row => {
         const name = row.querySelector('.item-name-part').innerText.toLowerCase();
-        if (name.includes(term)) {
-            row.style.display = 'flex';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = name.includes(term) ? 'flex' : 'none';
     });
 }
-
-const allReviews = [
-    { name: "م/محمد", text: "ايه رأيكم في ورق العنب؟ حلو جداً والله ❤️❤️ تسلم ايدك بجد" },
-    { name: "Aml Saad", text: `ماشاء الله تبارك الله والله العظيم لو اعرف انو ورق العنب هيبقي نضيف وجميل كدة كنت طلبت ٢ ك كمان .ربنا يبارك فيكم الف شكر` },
-    { name: "أ/سارة", text: `ايه تقييم حضرتك لنظام الطلب الجديد؟ جميل جدا جدا بيفكرنى بكل اللى محتاجاه` },
-    { name: "أ.مدحت", text: `السلام عليكم ملاحظه : البطيخه السابقه كانت أحلى بطيخه أكلناها فى حياتنا ، ربنا يوسع عليكم. بطيخه زى بتاعة المره اللى فاتت وشكرا` },
-    { name: "د.ميرفت", text: `السلام عليكم لسه فاتحه البطيخه النهارده سكككككككر تسلم ايدك` },
-    { name: "Om Eslam", text: `تمام الحمد لله أنا دوخت علي رقمك وصفحتك واضطريت اجيب من ناس تانيه بس بصراحه التعامل مع حضرتك حاجه تانيه` },
-    { name: "السيد حسن", text: `جزاك الله خيرا الحاجه ما شاء ممتازة ومتنقيه كويس جدا وأسعارها زي السوق وكل حاجه ما شاء الله تبارك الله أحسن من التانية وكمان المواعيد ممتازة ما شاء الله جزاك الله خيرا 🌹🌹` },
-    { name: "Adam", text: `خدمه اكتر من ممتازه والله والخضار والفاكهه فعلا ع الفرازه كان الواحد هوه بنفسه ال بيشترى وكمان ال بيوصل الاوردر ناس محترمه جدااا من نجاح لنجاح وجزاكم الله خيرا` },
-    { name: "dr. Amira", text: "البطيخ؟ جميل جدا 👏🏻👏🏻👏🏻" },
-    { name: "أ/سارة", text: `ما شاء الله الحاجة جميلة وطازة، ده أول تعامل معاكم وعجبني جدا الحاجة وسرعة التوصيل` },
-    { name: "dr.eman", text: `ربنا يجزيك الحسني و زياده كفايه ان الخضار و الفاكهه بتقيهم كأنهم لبيتك و الله ساعات بيباتوا في اكياسهم و بلاقيهم لسه زي الفل ربنا يبارك لك يا ابني و يجعله في ميزان حسناتك` },
-    { name: "أ/هبه", text: `شكرا لحضرتك الاوردر ممتاز ان شاء الله مش اخر تعامل` },
-    { name: "مدام سالي", text: `الاوردر وصل والحاجه كلها حلوة ما شاء الله تسلم الأيادي يارب تفضل علي نفس المستوي علطول بإذن الله جزاكم الله خيرا` },
-    { name: "", text: `شكرا على حسن معاملتكم والبدنجان والفاكهه جميله جدا` },
-    { name: "مدام سالي", text: `شكرا ع الحاجه جميله جدااااا كالعاده يارب دايما متميزين` },
-    { name: "", text: `شكرا عالحاجة جميلة جدا والبلح نضيف ماشاءالله... كنت برة فمشوار وبناتي اللي استلموا الاوردر.. تسلموا ع امانتكم` },
-    { name: "أ/شيرين", text: `الف شكر عالاوردر كله و عالهدية ماشاءالله تبارك الرحمن روعة تسلم ايدك` },
-    { name: "أوشو", text: `ماشاء الله الفاكهه جميلة جداا والله ومفيش فيها حاجه وحشه وخصوصا الفراولة عجبت مامتي جداا كأنها هي اللي شرياها وفضلت تقول انا بنقيها ومش بتبقى حمرا وجامده كدا، ربنا يزيدكو ياارب وان شاء الله مش اخر مره 💜` },
-    { name: "", text: `الفاكهة جميلة جدا زي كل مرة طبعا ماشاءالله ربنا يزيدك من نعيم الله و دايما جايبلنا الحاجات الحلوة` },
-    { name: "", text: `البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك` }
-];
-
-function loadReviews() {
-    const container = document.getElementById('reviews-container');
-    if(!container) return;
-    
-    container.innerHTML = allReviews.map(rev => `
-        <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-green-500 mb-4">
-            <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-green-700">${rev.name}</span>
-                <span class="text-yellow-500 text-sm">⭐⭐⭐⭐⭐</span>
-            </div>
-            <p class="text-gray-700 italic">"${rev.text}"</p>
-        </div>
-    `).join('');
-}
-
-window.addEventListener('DOMContentLoaded', loadReviews);
     </script>
 </body>
 </html>
