@@ -294,7 +294,7 @@
     <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl gap-2">
         <button onclick="openCartPreviewModal()" class="flex-1 bg-yellow-400 text-black font-extrabold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center justify-center gap-1.5 whitespace-nowrap">
             <span class="bg-black text-yellow-400 px-2 py-0.5 rounded-full text-xs font-black" id="sticky-cart-count">0 أصناف</span>
-            <span>المراجعة والتعديل</span>
+            <span>مراجعة والتعديل</span>
             <span>🛒</span>
         </button>
         <button onclick="scrollToCheckout()" class="flex-1 bg-white text-green-800 font-extrabold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow hover:bg-green-50 active:scale-95 transition flex items-center justify-center gap-1 whitespace-nowrap">
@@ -385,22 +385,23 @@ function updateWorkSchedule() {
             (day === 'Saturday' && currentTime < 7 * 60);
     }
 
+    // إدارة طبقة إجازة يوم الجمعة بالشاشة الشفافة
     if (holidayMode) {
         if (!scheduleOverlay) {
             scheduleOverlay = document.createElement('div');
             scheduleOverlay.style.cssText = `
                 position: fixed; inset: 0; width: 100%; height: 100%;
-                background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(8px);
+                background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px);
                 -webkit-backdrop-filter: blur(8px); z-index: 100000;
                 display: flex; flex-direction: column; align-items: center;
                 justify-content: center; text-align: center; padding: 20px; font-family: sans-serif;
             `;
             scheduleOverlay.innerHTML = `
-                <div style="background:white;padding:30px;border-radius:20px;border:1px solid #eee;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+                <div style="background:white;padding:30px;border-radius:20px;border:1px solid #eee;box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width: 90%;">
                     <img src="https://cdn-icons-png.flaticon.com/512/619/619032.png" width="80" style="margin:0 auto 20px;">
                     <h2 style="color:#333;margin-bottom:10px;">نعتذر عن استقبال طلبات التوصيل حالياً</h2>
-                    <p style="color:#666;font-size:18px;">نحن في إجازتنا الأسبوعية.<br>سنعاود استقبال الطلبات يوم السبت الساعة 7 صباحاً إن شاء الله.</p>
-                    <p style="color:#22c55e;font-weight:bold;margin-top:15px;font-size:20px;">شكراً لتفهمكم ❤️</p>
+                    <p style="color:#666;font-size:16px;">نحن في إجازتنا الأسبوعية.<br>سنعاود استقبال الطلبات يوم السبت الساعة 7 صباحاً إن شاء الله.</p>
+                    <p style="color:#22c55e;font-weight:bold;margin-top:15px;font-size:18px;">شكراً لتفهمكم ❤️</p>
                 </div>
             `;
             document.documentElement.appendChild(scheduleOverlay);
@@ -410,6 +411,32 @@ function updateWorkSchedule() {
             scheduleOverlay.remove();
             scheduleOverlay = null;
         }
+    }
+
+    // تعطيل أو تفعيل خانات الكمية والحجم تلقائياً بناءً على حالة الإغلاق أو خارج ساعات العمل
+    const isClosedOrHoliday = holidayMode || closeAfterHoursMode;
+    document.querySelectorAll('.quantity-select, .note-select').forEach(sel => {
+        if (isClosedOrHoliday) {
+            sel.disabled = true;
+            sel.style.opacity = '0.5';
+            sel.style.backgroundColor = '#f3f4f6';
+            sel.style.cursor = 'not-allowed';
+            if(sel.classList.contains('quantity-select')) {
+                sel.innerHTML = '<option value="0">مغلق حالياً 🔴</option>';
+            }
+        } else {
+            sel.disabled = false;
+            sel.style.opacity = '1';
+            sel.style.backgroundColor = sel.classList.contains('note-select') ? '#eff6ff' : '#fff';
+            sel.style.cursor = 'pointer';
+        }
+    });
+
+    // إخفاء الشريط السفلي للطلب إذا أغلقنا المتجر
+    if (isClosedOrHoliday) {
+        const stickyBar = document.getElementById('sticky-cart-bar');
+        if (stickyBar) stickyBar.style.display = 'none';
+        closeCartPreviewModal();
     }
 }
 setInterval(updateWorkSchedule, 30000);
@@ -739,7 +766,7 @@ function init() {
 
         loadCustomerData();
         checkPreviousOrdersCount();
-        updateStickyCartBar();
+        updateWorkSchedule(); // تفعيل حالة الإغلاق على القوائم فور تحميل الصفحة
     } catch (e) { console.error(e); }
 }
 
@@ -780,6 +807,7 @@ function getSelectedCartItems() {
 }
 
 function updateStickyCartBar() {
+    if (holidayMode || closeAfterHoursMode) return;
     const selectedItems = getSelectedCartItems();
     const count = selectedItems.length;
 
@@ -837,6 +865,7 @@ function generateModalQuantityOptions(unit, selectedVal, productName) {
 }
 
 function openCartPreviewModal() {
+    if (holidayMode || closeAfterHoursMode) return;
     renderCartPreviewItems();
     document.getElementById('cart-preview-modal').style.display = 'flex';
 }
@@ -985,6 +1014,10 @@ function closeRepeatOrdersModal() {
 }
 
 function restoreOrder(index) {
+    if (holidayMode || closeAfterHoursMode) {
+        alert("نعتذر، المتجر مغلق حالياً ولا يمكن استعادة الطلبات.");
+        return;
+    }
     let history = [];
     try { history = JSON.parse(localStorage.getItem('shirbin_orders_history')) || []; } catch(e) {}
     const selected = history[index];
