@@ -290,15 +290,39 @@
         </footer>
     </div>
 
+    <!-- الشريط السفلي الثابت مع تفعيل إمكانية الضغط لمراجعة الطلب -->
     <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl">
-        <div class="flex items-center gap-2">
+        <div onclick="openCartPreviewModal()" class="flex items-center gap-2 cursor-pointer flex-1">
             <span class="bg-yellow-400 text-black font-extrabold px-3 py-1 rounded-full text-sm" id="sticky-cart-count">0 أصناف</span>
-            <span class="text-xs font-semibold text-green-100 hidden sm:inline">تم اختيار أصناف للطلب</span>
+            <span class="text-xs font-semibold text-green-100 flex items-center gap-1">
+                <span>🛒 اضغط لمراجعة الطلب</span>
+                <span>↑</span>
+            </span>
         </div>
-        <button onclick="scrollToCheckout()" class="bg-yellow-400 text-black font-extrabold px-5 py-2 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center gap-1">
-            <span>اذهب لبيانات التوصيل</span>
+        <button onclick="scrollToCheckout()" class="bg-yellow-400 text-black font-extrabold px-4 py-2 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center gap-1">
+            <span>بيانات التوصيل</span>
             <span>↓</span>
         </button>
+    </div>
+
+    <!-- نافذة منبثقة (Modal) لمراجعة الطلب السريع من الشريط السفلي -->
+    <div id="cart-preview-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl border-t-4 sm:border-2 border-green-600 relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+                <h3 class="text-lg font-extrabold text-green-800 flex items-center gap-1">🛒 مراجعة الأصناف المختارة</h3>
+                <button onclick="closeCartPreviewModal()" class="bg-gray-200 text-gray-700 w-8 h-8 rounded-full font-bold text-sm hover:bg-gray-300 flex items-center justify-center">✕</button>
+            </div>
+            
+            <div id="cart-preview-items-list" class="space-y-2 overflow-y-auto flex-1 p-1 mb-4">
+                <!-- يتم تعبئتها ديناميكياً -->
+            </div>
+
+            <div class="pt-2 border-t flex gap-2">
+                <button onclick="closeCartPreviewModal(); scrollToCheckout();" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl shadow hover:bg-green-700 transition text-sm">
+                    الذهاب لتأكيد بيانات التوصيل 📝
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="repeat-orders-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center p-4">
@@ -580,7 +604,6 @@ async function loadPricesFromSheet() {
             const storageText = get(row, 'مناسب للتخزين');
             product.isStorage = yes(storageText);
 
-            // التحقق من كافة أشكال اسم عمود الحجم في الشيت
             const sizeText = get(row, 'الحجم؟') || get(row, 'حجم؟') || get(row, 'الحجم') || get(row, 'حجم');
             if (sizeText) {
                 product.hasSize = yes(sizeText);
@@ -634,7 +657,7 @@ function init() {
 
             const sizeSelectHTML = p.hasSize ? `
                 <div class="item-action-row">
-                    <select class="note-select" data-name="${p.name}">
+                    <select class="note-select" onchange="updateStickyCartBar()" data-name="${p.name}">
                         <option value="">-- الحجم --</option>
                         <option value="صغير">صغير</option>
                         <option value="وسط">وسط</option>
@@ -755,7 +778,62 @@ function updateStickyCartBar() {
         stickyBar.style.display = 'flex';
     } else {
         stickyBar.style.display = 'none';
+        closeCartPreviewModal();
     }
+}
+
+// دوال التحكم في نافذة مراجعة الطلب المنبثقة
+function openCartPreviewModal() {
+    const listContainer = document.getElementById('cart-preview-items-list');
+    let html = '';
+    let count = 0;
+
+    document.querySelectorAll('.quantity-select').forEach(s => {
+        if (s.value !== "0") {
+            const itemName = s.dataset.name;
+            const quantityText = s.options[s.selectedIndex].text;
+            const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
+            const noteValue = noteSelect ? noteSelect.value : "";
+            const notePart = noteValue ? ` (${noteValue})` : "";
+
+            html += `
+                <div class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-3">
+                    <div>
+                        <div class="font-bold text-gray-800 text-sm">${itemName}${notePart}</div>
+                        <div class="text-xs text-green-700 font-bold mt-0.5">الكمية: ${quantityText}</div>
+                    </div>
+                    <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <span>🗑️ حذف</span>
+                    </button>
+                </div>
+            `;
+            count++;
+        }
+    });
+
+    if (count === 0) {
+        html = '<p class="text-center text-gray-500 py-6 text-sm">لم تقم باختيار أي أصناف بعد!</p>';
+    }
+
+    listContainer.innerHTML = html;
+    document.getElementById('cart-preview-modal').style.display = 'flex';
+}
+
+function closeCartPreviewModal() {
+    document.getElementById('cart-preview-modal').style.display = 'none';
+}
+
+function removeItemFromCart(itemName) {
+    const select = document.querySelector(`.quantity-select[data-name="${itemName}"]`);
+    if (select) {
+        select.value = "0";
+    }
+    const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
+    if (noteSelect) {
+        noteSelect.value = "";
+    }
+    updateStickyCartBar();
+    openCartPreviewModal(); // تحديث محتوى القائمة المنبثقة بعد الحذف
 }
 
 function saveCustomerData() {
