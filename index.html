@@ -303,7 +303,7 @@
         </button>
     </div>
 
-    <!-- نافذة منبثقة لمراجعة وتعديل الكميات (منسقة وبدون أخطاء) -->
+    <!-- نافذة منبثقة لمراجعة وتعديل الكميات والأصناف بدقة -->
     <div id="cart-preview-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl border-t-4 sm:border-2 border-green-600 relative max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 border-b pb-2">
@@ -509,7 +509,7 @@ function parseCSV(text) {
 function cleanSheetNumber(value) {
     const normalized = String(value ?? '')
         .trim()
-        .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+        .replace(/[٠-٩]/g, digit => '٠١ي٣٤٥٦٧٨٩'.indexOf(digit))
         .replace(/[۰-۹]/g, digit => '۰۱۲۳۴۵۶۷۸۹'.indexOf(digit))
         .replace(/[٫٬]/g, '.')
         .replace(/,/g, '');
@@ -762,11 +762,27 @@ function scrollToCheckout() {
     }
 }
 
-function updateStickyCartBar() {
-    let count = 0;
+// دالة دقيقة لحساب العناصر المختارة الفعليّة لضمان توافق الشريط تماماً
+function getSelectedCartItems() {
+    let items = [];
     document.querySelectorAll('.quantity-select').forEach(s => {
-        if (s.value && s.value !== "0") count++;
+        const val = s.value;
+        const itemName = s.dataset.name;
+        if (val && val !== "0" && val !== "undefined" && itemName) {
+            items.push({
+                name: itemName,
+                val: val,
+                unit: s.dataset.unit,
+                selectElement: s
+            });
+        }
     });
+    return items;
+}
+
+function updateStickyCartBar() {
+    const selectedItems = getSelectedCartItems();
+    const count = selectedItems.length;
 
     const stickyBar = document.getElementById('sticky-cart-bar');
     const stickyCount = document.getElementById('sticky-cart-count');
@@ -809,12 +825,12 @@ function generateModalQuantityOptions(unit, selectedVal, productName) {
             filteredWeights.push({v:i,t:i+'ك'});
         }
         filteredWeights.forEach(w=>{
-            const isSel = Number(selectedVal) === w.v ? 'selected' : '';
+            const isSel = String(selectedVal) === String(w.v) ? 'selected' : '';
             opts += `<option value="${w.v}" ${isSel}>${w.t}</option>`;
         });
     } else {
         for(let i=1;i<=20;i++){
-            const isSel = Number(selectedVal) === i ? 'selected' : '';
+            const isSel = String(selectedVal) === String(i) ? 'selected' : '';
             opts += `<option value="${i}" ${isSel}>${i} ${unit}</option>`;
         }
     }
@@ -828,44 +844,36 @@ function openCartPreviewModal() {
 
 function renderCartPreviewItems() {
     const listContainer = document.getElementById('cart-preview-items-list');
+    const selectedItems = getSelectedCartItems();
     let html = '';
-    let count = 0;
 
-    document.querySelectorAll('.quantity-select').forEach(s => {
-        const val = s.value;
-        if (val && val !== "0" && val !== "undefined") {
-            const itemName = s.dataset.name;
-            const unit = s.dataset.unit;
-            if (!itemName) return;
-
-            const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
+    if (selectedItems.length === 0) {
+        html = '<p class="text-center text-gray-500 py-6 text-sm">لم تقم باختيار أي أصناف بعد!</p>';
+    } else {
+        selectedItems.forEach(item => {
+            const noteSelect = document.querySelector(`.note-select[data-name="${item.name}"]`);
             const noteValue = noteSelect ? noteSelect.value : "";
             const notePart = noteValue ? ` (${noteValue})` : "";
 
-            const quantityOptions = generateModalQuantityOptions(unit, val, itemName);
+            const quantityOptions = generateModalQuantityOptions(item.unit, item.val, item.name);
 
             html += `
                 <div class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-3 gap-2">
                     <div class="flex-1 min-w-0">
-                        <div class="font-bold text-gray-800 text-sm truncate">${itemName}${notePart}</div>
+                        <div class="font-bold text-gray-800 text-sm truncate">${item.name}${notePart}</div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <select onchange="updateQuantityFromModal('${itemName}', this.value)" class="quantity-select text-xs h-8 w-20">
+                        <select onchange="updateQuantityFromModal('${item.name}', this.value)" class="quantity-select text-xs h-8 w-20">
                             ${quantityOptions}
                         </select>
-                        <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <button onclick="removeItemFromCart('${item.name}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
                             <span>🗑️</span>
                             <span>حذف</span>
                         </button>
                     </div>
                 </div>
             `;
-            count++;
-        }
-    });
-
-    if (count === 0) {
-        html = '<p class="text-center text-gray-500 py-6 text-sm">لم تقم باختيار أي أصناف بعد!</p>';
+        });
     }
 
     listContainer.innerHTML = html;
@@ -1016,33 +1024,31 @@ function generateWhatsAppOrder() {
     if (holidayMode) { alert("❤️ نحن في إجازتنا الأسبوعية."); return; }
     if (closeAfterHoursMode) { alert("🚨 انتهت مواعيد استقبال الطلبات اليوم."); return; }
 
-    let vegItems = '', fruitItems = '', count = 0;
+    const selectedItems = getSelectedCartItems();
+    if (selectedItems.length === 0) return alert("من فضلك اختر صنف واحد على الأقل من القائمة!");
+
+    let vegItems = '', fruitItems = '';
     let currentOrderItems = [];
 
-    document.querySelectorAll('.quantity-select').forEach(s => {
-        if (s.value && s.value !== "0" && s.value !== "undefined") {
-            const itemName = s.dataset.name;
-            const quantityText = s.options[s.selectedIndex].text;
-            
-            const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
-            const noteValue = noteSelect ? noteSelect.value : "";
-            const notePart = noteValue ? ` (${noteValue})` : "";
+    selectedItems.forEach(item => {
+        const select = item.selectElement;
+        const quantityText = select.options[select.selectedIndex].text;
+        
+        const noteSelect = document.querySelector(`.note-select[data-name="${item.name}"]`);
+        const noteValue = noteSelect ? noteSelect.value : "";
+        const notePart = noteValue ? ` (${noteValue})` : "";
 
-            const itemLine = `• ${quantityText} ${itemName}${notePart}\n`;
-            
-            const product = productsData.find(p => p.name === itemName);
-            if (product && product.category === 'fruit') {
-                fruitItems += itemLine;
-            } else {
-                vegItems += itemLine;
-            }
-
-            currentOrderItems.push({ name: itemName, val: s.value, qText: quantityText, note: noteValue });
-            count++;
+        const itemLine = `• ${quantityText} ${item.name}${notePart}\n`;
+        
+        const product = productsData.find(p => p.name === item.name);
+        if (product && product.category === 'fruit') {
+            fruitItems += itemLine;
+        } else {
+            vegItems += itemLine;
         }
-    });
 
-    if (count === 0) return alert("من فضلك اختر صنف واحد على الأقل من القائمة!");
+        currentOrderItems.push({ name: item.name, val: item.val, qText: quantityText, note: noteValue });
+    });
 
     saveCustomerData();
     saveOrderToHistory(currentOrderItems);
