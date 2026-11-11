@@ -290,20 +290,20 @@
         </footer>
     </div>
 
-    <!-- الشريط السفلي المدمج (عدد الأصناف + مراجعة الطلب + الذهاب للتوصيل) -->
-    <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl">
-        <button onclick="openCartPreviewModal()" class="flex-1 bg-yellow-400 text-black font-extrabold py-2.5 px-4 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center justify-center gap-2 ml-2">
+    <!-- الشريط السفلي المدمج والمترابط في نفس السطر تماماً -->
+    <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl gap-2">
+        <button onclick="openCartPreviewModal()" class="flex-1 bg-yellow-400 text-black font-extrabold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center justify-center gap-1.5 whitespace-nowrap">
             <span class="bg-black text-yellow-400 px-2 py-0.5 rounded-full text-xs font-black" id="sticky-cart-count">0</span>
-            <span>🛒 مراجعة الطلب والتعديل</span>
-            <span>↑</span>
+            <span>مراجعة الطلب والتعديل</span>
+            <span>🛒</span>
         </button>
-        <button onclick="scrollToCheckout()" class="bg-white text-green-800 font-extrabold py-2.5 px-4 rounded-xl text-sm shadow hover:bg-green-50 active:scale-95 transition flex items-center gap-1">
+        <button onclick="scrollToCheckout()" class="flex-1 bg-white text-green-800 font-extrabold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow hover:bg-green-50 active:scale-95 transition flex items-center justify-center gap-1 whitespace-nowrap">
             <span>بيانات التوصيل</span>
-            <span>↓</span>
+            <span>📝</span>
         </button>
     </div>
 
-    <!-- نافذة منبثقة لمراجعة وتعديل الكميات والأصناف -->
+    <!-- نافذة منبثقة لمراجعة وتعديل الكميات (منسقة وبدون أخطاء) -->
     <div id="cart-preview-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl border-t-4 sm:border-2 border-green-600 relative max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 border-b pb-2">
@@ -312,7 +312,7 @@
             </div>
             
             <div id="cart-preview-items-list" class="space-y-3 overflow-y-auto flex-1 p-1 mb-4">
-                <!-- يتم تعبئتها ديناميكياً مع إمكانية تعديل الكميات -->
+                <!-- يتم تعبئتها ديناميكياً بدقة -->
             </div>
 
             <div class="pt-2 border-t flex gap-2">
@@ -765,7 +765,7 @@ function scrollToCheckout() {
 function updateStickyCartBar() {
     let count = 0;
     document.querySelectorAll('.quantity-select').forEach(s => {
-        if (s.value !== "0") count++;
+        if (s.value && s.value !== "0") count++;
     });
 
     const stickyBar = document.getElementById('sticky-cart-bar');
@@ -779,16 +779,14 @@ function updateStickyCartBar() {
         closeCartPreviewModal();
     }
 
-    // تحديث القائمة المنبثقة إذا كانت مفتوحة لتعكس أي تغيير فوري
     const modal = document.getElementById('cart-preview-modal');
     if (modal.style.display === 'flex') {
         renderCartPreviewItems();
     }
 }
 
-// دالة إنشاء خيارات الكميات داخل قائمة المراجعة المنبثقة
 function generateModalQuantityOptions(unit, selectedVal, productName) {
-    let opts = '<option value="0">حذف (0)</option>';
+    let opts = '<option value="0">حذف</option>';
     if (unit === 'كجم') {
         const product = productsData.find(p => p.name === productName);
         const minWeight = product?.minWeight || 0.125;
@@ -834,17 +832,17 @@ function renderCartPreviewItems() {
     let count = 0;
 
     document.querySelectorAll('.quantity-select').forEach(s => {
-        if (s.value !== "0") {
+        const val = s.value;
+        if (val && val !== "0" && val !== "undefined") {
             const itemName = s.dataset.name;
-            const currentVal = s.value;
             const unit = s.dataset.unit;
-            
-            const product = productsData.find(p => p.name === itemName);
+            if (!itemName) return;
+
             const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
             const noteValue = noteSelect ? noteSelect.value : "";
             const notePart = noteValue ? ` (${noteValue})` : "";
 
-            const quantityOptions = generateModalQuantityOptions(unit, currentVal, itemName);
+            const quantityOptions = generateModalQuantityOptions(unit, val, itemName);
 
             html += `
                 <div class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-3 gap-2">
@@ -852,11 +850,12 @@ function renderCartPreviewItems() {
                         <div class="font-bold text-gray-800 text-sm truncate">${itemName}${notePart}</div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <select onchange="updateQuantityFromModal('${itemName}', this.value)" class="quantity-select text-xs h-8 w-24">
+                        <select onchange="updateQuantityFromModal('${itemName}', this.value)" class="quantity-select text-xs h-8 w-20">
                             ${quantityOptions}
                         </select>
-                        <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1.5 rounded-lg text-xs font-bold transition">
-                            🗑️
+                        <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                            <span>🗑️</span>
+                            <span>حذف</span>
                         </button>
                     </div>
                 </div>
@@ -875,8 +874,12 @@ function renderCartPreviewItems() {
 function updateQuantityFromModal(itemName, newVal) {
     const mainSelect = document.querySelector(`.quantity-select[data-name="${itemName}"]`);
     if (mainSelect) {
-        mainSelect.value = newVal;
-        updateStickyCartBar();
+        if (newVal === "0") {
+            removeItemFromCart(itemName);
+        } else {
+            mainSelect.value = newVal;
+            updateStickyCartBar();
+        }
     }
 }
 
@@ -1017,7 +1020,7 @@ function generateWhatsAppOrder() {
     let currentOrderItems = [];
 
     document.querySelectorAll('.quantity-select').forEach(s => {
-        if (s.value != "0") {
+        if (s.value && s.value !== "0" && s.value !== "undefined") {
             const itemName = s.dataset.name;
             const quantityText = s.options[s.selectedIndex].text;
             
