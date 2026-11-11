@@ -35,15 +35,15 @@
         
         .flex-row-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 14px; border-bottom: 1px solid #eee; transition: background-color 0.2s;
+            padding: 10px 12px; border-bottom: 1px solid #eee; transition: background-color 0.2s;
             gap: 8px;
         }
         
-        /* قسم اليمين: الصورة والاسم والشارات */
-        .item-right-group { display: flex; align-items: center; gap: 8px; flex: 1.2; text-align: right; min-width: 0; }
+        .item-right-group { display: flex; align-items: center; gap: 8px; flex: 1.3; text-align: right; min-width: 0; }
         .item-text-content { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 
-        .item-main-title { font-size: 1rem; font-weight: 800; color: #1f2937; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* تصغير حجم الخط ليكون متناسقاً وجميلاً */
+        .item-main-title { font-size: 0.95rem; font-weight: 700; color: #1f2937; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .rating-card {
             background: white; border: 2px dashed #fbbf24; border-radius: 20px;
@@ -55,24 +55,23 @@
         .star-rating label:hover { transform: scale(1.2); }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }  
    
-        /* قسم السعر في المنتصف بعيداً عن الاسم */
-        .item-price-part { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 70px; flex-shrink: 0; text-align: center; }
-        .old-price { color: #9ca3af; text-decoration: line-through; font-size: 0.7rem; white-space: nowrap; }
-        .current-price { color: #dc2626; font-weight: 800; font-size: 1rem; white-space: nowrap; }
+        .item-price-part { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; flex-shrink: 0; text-align: center; }
+        .old-price { color: #9ca3af; text-decoration: line-through; font-size: 0.65rem; white-space: nowrap; }
+        .current-price { color: #dc2626; font-weight: 800; font-size: 0.95rem; white-space: nowrap; }
 
-        /* قسم اليسار: أزرار الطلب والحجم */
-        .item-action-container { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex-shrink: 0; }
+        .item-action-container { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; flex-shrink: 0; }
 
         .quantity-select { 
-            height: 34px; width: 88px; border: 2px solid #16a34a; border-radius: 8px; 
+            height: 32px; width: 84px; border: 2px solid #16a34a; border-radius: 8px; 
             font-weight: bold; background-color: #fff; font-size: 0.75rem; text-align: center; cursor: pointer;
         }
         .note-select {
-            height: 30px; width: 88px; border: 1.5px solid #3b82f6; border-radius: 8px; 
+            height: 30px; width: 84px; border: 1.5px solid #3b82f6; border-radius: 8px; 
             font-weight: 600; background-color: #eff6ff; font-size: 0.7rem; text-align: center; color: #1e40af; cursor: pointer;
         }
 
-        .not-available { opacity: 0.4; pointer-events: none; background-color: #fcfcfc; }
+        /* الصنف غير المتاح يصبح باهتاً تماماً وبدون أي نصوص مزعجة */
+        .not-available { opacity: 0.35; pointer-events: none; background-color: #fafafa; }
         
         .badge-container { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 4px; margin-top: 2px; flex-wrap: nowrap; }
         .offer-badge, .storage-badge { padding: 1px 5px; border-radius: 99px; font-size: 8px; font-weight: bold; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
@@ -80,7 +79,7 @@
         .storage-badge { background: #3b82f6; color: white; }
         
         .special-star {
-            font-size: 12px; cursor: pointer; position: relative; display: inline-block; vertical-align: middle;
+            font-size: 11px; cursor: pointer; position: relative; display: inline-block; vertical-align: middle;
         }
         .special-star::after {
             content: attr(data-tooltip);
@@ -92,10 +91,10 @@
         .special-star:hover::after { opacity: 1; visibility: visible; }
 
         .product-img {
-            width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; flex-shrink: 0; background-color: #f9fafb;
+            width: 38px; height: 38px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; flex-shrink: 0; background-color: #f9fafb;
         }
         .product-img-placeholder {
-            width: 42px; height: 42px; border-radius: 8px; border: 1.5px dashed #9ca3af; flex-shrink: 0; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 15px; filter: grayscale(100%); opacity: 0.7;
+            width: 38px; height: 38px; border-radius: 8px; border: 1.5px dashed #9ca3af; flex-shrink: 0; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 14px; filter: grayscale(100%); opacity: 0.7;
         }
 
         .hero-title-box {
@@ -388,21 +387,21 @@ setInterval(updateWorkSchedule, 30000);
 let productsData = [
     { name: "بصل أحمر", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5}, 
     { name: "ثوم بلدي", price: 70, unit: "كجم", category: "veg", available: true, minWeight: 0.5 },
-    { name: "بطاطس تحمير", price: 35, unit: "كجم", category: "veg", available: true,minWeight: 1 },
+    { name: "بطاطس تحمير", price: 35, unit: "كجم", category: "veg", available: true, minWeight: 1 },
     { name: "بطاطس صغيرة", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 1},
-    { name: "باذنجان مكبب", price: 15, unit: "كجم", category: "veg", available: true },
-    { name: "باذنجان حشو", price: 20, unit: "كجم", category: "veg", available: true },
+    { name: "باذنجان مكبب", price: 15, unit: "كجم", category: "veg", available: true, hasSize: true },
+    { name: "باذنجان حشو", price: 20, unit: "كجم", category: "veg", available: true, hasSize: true },
     { name: "خيار", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5 },
-    { name: "كوسة", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.5 },
+    { name: "كوسة", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.5, hasSize: true },
     { name: "جزر", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5 },
-    { name: "طماطم جامدة", price: 25, unit: "كجم", category: "veg", available: true,trend: "up", minWeight: 0.5 },
-    { name: "طماطم طبخ سليمة", price: 20, unit: "كجم", category: "veg", available: true,trend: "up", minWeight: 1 },
+    { name: "طماطم جامدة", price: 25, unit: "كجم", category: "veg", available: true, trend: "up", minWeight: 0.5 },
+    { name: "طماطم طبخ سليمة", price: 20, unit: "كجم", category: "veg", available: true, trend: "up", minWeight: 1 },
     { name: "ليمون", price: 50, unit: "كجم", category: "veg", available: true, minWeight: 0.25 },
-    { name: "فلفل أخضر بارد", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.5},
-    { name: "فلفل أخضر حار", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.25},
-    { name: "شطة خضراء", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5},
-    { name: "فلفل أحمر بارد", price: 50, unit: "كجم", category: "veg", available: false, minWeight: 0.5},
-    { name: "فلفل أحمر حار", price: 50, unit: "كجم", category: "veg", available: true, minWeight: 0.25 },
+    { name: "فلفل أخضر بارد", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.5, hasSize: true },
+    { name: "فلفل أخضر حار", price: 25, unit: "كجم", category: "veg", available: true, minWeight: 0.25, hasSize: true },
+    { name: "شطة خضراء", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5 },
+    { name: "فلفل أحمر بارد", price: 50, unit: "كجم", category: "veg", available: false, minWeight: 0.5 },
+    { name: "فلفل أحمر حار", price: 50, unit: "كجم", category: "veg", available: true, minWeight: 0.25, hasSize: true },
     { name: "فلفل ألوان", price: 80, unit: "كجم", category: "veg", available: true, minWeight: 0.25, trend: "up" },
     { name: "قلقاس", price: 35, unit: "كجم", category: "veg", available: true, minWeight: 0.5},
     { name: "فاصوليا خضراء", price:  30, unit: "كجم", category: "veg", available: true, minWeight: 0.5},
@@ -421,8 +420,8 @@ let productsData = [
     { name: "خس بلدي", price: 15, unit: "ربطة", category: "veg", available: true },
     { name: "كرنب أحمر (سلطة)", price: 30, unit: "حبة", category: "veg", available: true },
     { name: "كرنب أبيض (سلطة)", price: 30, unit: "حبة", category: "veg", available: true },
-    { name: "ذرة أصفر", price: 55,oldPrice: 65, unit: "طبق", category: "veg", available: false },
-    { name: "مشروم فريش", price: 65,oldPrice: 70, unit: "طبق", category: "veg", available: false },
+    { name: "ذرة أصفر", price: 55, oldPrice: 65, unit: "طبق", category: "veg", available: false },
+    { name: "مشروم فريش", price: 65, oldPrice: 70, unit: "طبق", category: "veg", available: false },
     { name: "أرز رويزق 10ك", price: 295, oldPrice: 300, unit: "شيكارة", category: "veg", available: true },
     { name: "موز", price: 40, unit: "كجم", category: "fruit", available: true, trend: "down" },
     { name: "تفاح أصفر", price: 100, unit: "كجم", category: "fruit", available: true },
@@ -438,7 +437,7 @@ let productsData = [
     { name: "مانجو كيت", price: 70, unit: "كجم", category: "fruit", available: true, isSpecial: false, minWeight: 1},
     { name: "كنتالوب", price: 50, unit: "كجم", category: "fruit", available: true, isSpecial: true},
     { name: "مانجو كريمسون", price: 100, unit: "كجم", category: "fruit", available: false, isSpecial: false, minWeight: 0.5}, 
-    { name: "تمر القصيم ٩٠٠جم", price: 130, unit: "علبة", category: "fruit", available: true, isSpecial:false },
+    { name: "تمر القصيم ٩٠٠جم", price: 130, unit: "علبة", category: "fruit", available: true, isSpecial: false },
     { name: "جوافة بلطيمي", price: 70, unit: "كجم", category: "fruit", available: true, isSpecial: false, minWeight: 0.5 },
     { name: "جوافة", price: 50, unit: "كجم", category: "fruit", available: true, isSpecial: false, minWeight: 0.5 },
     { name: "بلح برحي", price: 120, unit: "كجم", category: "fruit", available: true, minWeight: 0.5},
@@ -573,6 +572,9 @@ async function loadPricesFromSheet() {
             const storageText = get(row, 'مناسب للتخزين');
             product.isStorage = yes(storageText);
 
+            const sizeText = get(row, 'الحجم؟') || get(row, 'حجم؟');
+            if (sizeText) product.hasSize = yes(sizeText);
+
             const imgUrl = get(row, 'رابط الصورة');
             if (imgUrl) product.img = imgUrl;
 
@@ -616,6 +618,18 @@ function init() {
                     </div>
                 </div>`;
 
+            // إظهار زر الحجم فقط للأصناف التي تحتوي على خاصية hasSize
+            const sizeSelectHTML = p.hasSize ? `
+                <div class="item-action-row">
+                    <select class="note-select" data-name="${p.name}">
+                        <option value="">-- الحجم --</option>
+                        <option value="صغير">صغير</option>
+                        <option value="وسط">وسط</option>
+                        <option value="كبير">كبير</option>
+                        <option value="مشكل">مشكل</option>
+                    </select>
+                </div>` : '';
+
             const actionPart = p.available ? `
                 <div class="item-action-container">
                     <div class="item-action-row">
@@ -623,16 +637,8 @@ function init() {
                             <option value="0">-- الكمية --</option>
                         </select>
                     </div>
-                    <div class="item-action-row">
-                        <select class="note-select" data-name="${p.name}">
-                            <option value="">-- الحجم --</option>
-                            <option value="صغير">صغير</option>
-                            <option value="وسط">وسط</option>
-                            <option value="كبير">كبير</option>
-                            <option value="مشكل">مشكل</option>
-                        </select>
-                    </div>
-                </div>` : '<span class="text-red-500 font-bold text-xs">غير متوفر</span>';
+                    ${sizeSelectHTML}
+                </div>` : ''; // تم حذف عبارة غير متوفر والاكتفاء بأن الصنف غير مفعل وباهت
 
             const iRow = `<div class="flex-row-item ${p.available ? '' : 'not-available'}">
                 <div class="item-right-group">
