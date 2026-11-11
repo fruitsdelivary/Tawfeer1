@@ -36,13 +36,14 @@
         .flex-row-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 14px; border-bottom: 1px solid #eee; transition: background-color 0.2s;
-            gap: 10px;
+            gap: 8px;
         }
         
-        .item-right-group { display: flex; align-items: center; gap: 10px; flex: 1.5; text-align: right; min-width: 0; }
+        /* قسم اليمين: الصورة والاسم والشارات */
+        .item-right-group { display: flex; align-items: center; gap: 8px; flex: 1.2; text-align: right; min-width: 0; }
         .item-text-content { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 
-        .item-main-title { font-size: 1.05rem; font-weight: 800; color: #1f2937; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .item-main-title { font-size: 1rem; font-weight: 800; color: #1f2937; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .rating-card {
             background: white; border: 2px dashed #fbbf24; border-radius: 20px;
@@ -54,30 +55,32 @@
         .star-rating label:hover { transform: scale(1.2); }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }  
    
-        .item-price-part { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; min-width: 85px; flex-shrink: 0; text-align: left; }
+        /* قسم السعر في المنتصف بعيداً عن الاسم */
+        .item-price-part { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 70px; flex-shrink: 0; text-align: center; }
         .old-price { color: #9ca3af; text-decoration: line-through; font-size: 0.7rem; white-space: nowrap; }
-        .current-price { color: #dc2626; font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
+        .current-price { color: #dc2626; font-weight: 800; font-size: 1rem; white-space: nowrap; }
 
+        /* قسم اليسار: أزرار الطلب والحجم */
         .item-action-container { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex-shrink: 0; }
 
         .quantity-select { 
-            height: 35px; width: 92px; border: 2px solid #16a34a; border-radius: 8px; 
-            font-weight: bold; background-color: #fff; font-size: 0.8rem; text-align: center; cursor: pointer;
+            height: 34px; width: 88px; border: 2px solid #16a34a; border-radius: 8px; 
+            font-weight: bold; background-color: #fff; font-size: 0.75rem; text-align: center; cursor: pointer;
         }
         .note-select {
-            height: 32px; width: 92px; border: 1.5px solid #3b82f6; border-radius: 8px; 
-            font-weight: 600; background-color: #eff6ff; font-size: 0.75rem; text-align: center; color: #1e40af; cursor: pointer;
+            height: 30px; width: 88px; border: 1.5px solid #3b82f6; border-radius: 8px; 
+            font-weight: 600; background-color: #eff6ff; font-size: 0.7rem; text-align: center; color: #1e40af; cursor: pointer;
         }
 
         .not-available { opacity: 0.4; pointer-events: none; background-color: #fcfcfc; }
         
-        .badge-container { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 5px; margin-top: 3px; flex-wrap: nowrap; }
-        .offer-badge, .storage-badge { padding: 1px 6px; border-radius: 99px; font-size: 8.5px; font-weight: bold; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+        .badge-container { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 4px; margin-top: 2px; flex-wrap: nowrap; }
+        .offer-badge, .storage-badge { padding: 1px 5px; border-radius: 99px; font-size: 8px; font-weight: bold; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
         .offer-badge { background: #ef4444; color: white; }
         .storage-badge { background: #3b82f6; color: white; }
         
         .special-star {
-            font-size: 13px; cursor: pointer; position: relative; display: inline-block; vertical-align: middle;
+            font-size: 12px; cursor: pointer; position: relative; display: inline-block; vertical-align: middle;
         }
         .special-star::after {
             content: attr(data-tooltip);
@@ -89,13 +92,12 @@
         .special-star:hover::after { opacity: 1; visibility: visible; }
 
         .product-img {
-            width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; flex-shrink: 0; background-color: #f9fafb;
+            width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; flex-shrink: 0; background-color: #f9fafb;
         }
         .product-img-placeholder {
-            width: 44px; height: 44px; border-radius: 8px; border: 1.5px dashed #9ca3af; flex-shrink: 0; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 16px; filter: grayscale(100%); opacity: 0.7;
+            width: 42px; height: 42px; border-radius: 8px; border: 1.5px dashed #9ca3af; flex-shrink: 0; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 15px; filter: grayscale(100%); opacity: 0.7;
         }
 
-        /* تصميم جديد وراقي لترويسة العنوان الرئيسي */
         .hero-title-box {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             border: 2px solid #86efac;
@@ -118,7 +120,6 @@
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-4 md:p-10 border-4 border-green-500/45">
 
         <header class="text-center mb-6">
-            <!-- الترويسة الجديدة الجذابة -->
             <div class="hero-title-box mb-5">
                 <div class="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 shadow-sm">
                     🌿 طازة كل يوم لحد باب البيت
@@ -282,7 +283,6 @@
         </footer>
     </div>
 
-    <!-- شريط الطلب السفلي الثابت -->
     <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl">
         <div class="flex items-center gap-2">
             <span class="bg-yellow-400 text-black font-extrabold px-3 py-1 rounded-full text-sm" id="sticky-cart-count">0 أصناف</span>
@@ -294,7 +294,6 @@
         </button>
     </div>
 
-    <!-- نافذة منبثقة لاستعادة آخر الطلبات -->
     <div id="repeat-orders-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl border-2 border-green-500 relative">
             <button onclick="closeRepeatOrdersModal()" class="absolute top-3 left-3 bg-gray-200 text-gray-700 w-7 h-7 rounded-full font-bold text-xs hover:bg-gray-300">✕</button>
@@ -603,15 +602,15 @@ function init() {
 
             let trendArrow = '';
             if (p.trend === 'down') {
-                trendArrow = `<svg class="w-3.5 h-3.5 text-red-600 animate-pulse inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21l-10-18h20z"/></svg>`;
+                trendArrow = `<svg class="w-3 h-3 text-red-600 animate-pulse inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21l-10-18h20z"/></svg>`;
             } else if (p.trend === 'up') {
-                trendArrow = `<svg class="w-3.5 h-3.5 text-green-600 inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l10 18h-20z"/></svg>`;
+                trendArrow = `<svg class="w-3 h-3 text-green-600 inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l10 18h-20z"/></svg>`;
             }
 
             const priceDiv = `
                 <div class="item-price-part">
                     ${p.oldPrice ? `<span class="old-price">${p.oldPrice} ج</span>` : ''}
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-0.5">
                         ${trendArrow}
                         <span class="current-price">${p.price} ج</span>
                     </div>
