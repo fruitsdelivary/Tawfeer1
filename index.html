@@ -290,31 +290,29 @@
         </footer>
     </div>
 
-    <!-- الشريط السفلي الثابت مع تفعيل إمكانية الضغط لمراجعة الطلب -->
+    <!-- الشريط السفلي المدمج (عدد الأصناف + مراجعة الطلب + الذهاب للتوصيل) -->
     <div id="sticky-cart-bar" style="display: none;" class="fixed bottom-0 left-0 right-0 bg-green-700 text-white p-3 shadow-2xl z-40 border-t-2 border-yellow-400 flex justify-between items-center px-4 max-w-3xl mx-auto rounded-t-2xl">
-        <div onclick="openCartPreviewModal()" class="flex items-center gap-2 cursor-pointer flex-1">
-            <span class="bg-yellow-400 text-black font-extrabold px-3 py-1 rounded-full text-sm" id="sticky-cart-count">0 أصناف</span>
-            <span class="text-xs font-semibold text-green-100 flex items-center gap-1">
-                <span>🛒 اضغط لمراجعة الطلب</span>
-                <span>↑</span>
-            </span>
-        </div>
-        <button onclick="scrollToCheckout()" class="bg-yellow-400 text-black font-extrabold px-4 py-2 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center gap-1">
+        <button onclick="openCartPreviewModal()" class="flex-1 bg-yellow-400 text-black font-extrabold py-2.5 px-4 rounded-xl text-sm shadow hover:bg-yellow-300 active:scale-95 transition flex items-center justify-center gap-2 ml-2">
+            <span class="bg-black text-yellow-400 px-2 py-0.5 rounded-full text-xs font-black" id="sticky-cart-count">0</span>
+            <span>🛒 مراجعة الطلب والتعديل</span>
+            <span>↑</span>
+        </button>
+        <button onclick="scrollToCheckout()" class="bg-white text-green-800 font-extrabold py-2.5 px-4 rounded-xl text-sm shadow hover:bg-green-50 active:scale-95 transition flex items-center gap-1">
             <span>بيانات التوصيل</span>
             <span>↓</span>
         </button>
     </div>
 
-    <!-- نافذة منبثقة (Modal) لمراجعة الطلب السريع من الشريط السفلي -->
+    <!-- نافذة منبثقة لمراجعة وتعديل الكميات والأصناف -->
     <div id="cart-preview-modal" style="display: none;" class="fixed inset-0 bg-black/60 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl border-t-4 sm:border-2 border-green-600 relative max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 border-b pb-2">
-                <h3 class="text-lg font-extrabold text-green-800 flex items-center gap-1">🛒 مراجعة الأصناف المختارة</h3>
+                <h3 class="text-lg font-extrabold text-green-800 flex items-center gap-1">🛒 مراجعة وتعديل الأصناف</h3>
                 <button onclick="closeCartPreviewModal()" class="bg-gray-200 text-gray-700 w-8 h-8 rounded-full font-bold text-sm hover:bg-gray-300 flex items-center justify-center">✕</button>
             </div>
             
-            <div id="cart-preview-items-list" class="space-y-2 overflow-y-auto flex-1 p-1 mb-4">
-                <!-- يتم تعبئتها ديناميكياً -->
+            <div id="cart-preview-items-list" class="space-y-3 overflow-y-auto flex-1 p-1 mb-4">
+                <!-- يتم تعبئتها ديناميكياً مع إمكانية تعديل الكميات -->
             </div>
 
             <div class="pt-2 border-t flex gap-2">
@@ -774,16 +772,63 @@ function updateStickyCartBar() {
     const stickyCount = document.getElementById('sticky-cart-count');
 
     if (count > 0) {
-        stickyCount.textContent = `${count} أصناف`;
+        stickyCount.textContent = count;
         stickyBar.style.display = 'flex';
     } else {
         stickyBar.style.display = 'none';
         closeCartPreviewModal();
     }
+
+    // تحديث القائمة المنبثقة إذا كانت مفتوحة لتعكس أي تغيير فوري
+    const modal = document.getElementById('cart-preview-modal');
+    if (modal.style.display === 'flex') {
+        renderCartPreviewItems();
+    }
 }
 
-// دوال التحكم في نافذة مراجعة الطلب المنبثقة
+// دالة إنشاء خيارات الكميات داخل قائمة المراجعة المنبثقة
+function generateModalQuantityOptions(unit, selectedVal, productName) {
+    let opts = '<option value="0">حذف (0)</option>';
+    if (unit === 'كجم') {
+        const product = productsData.find(p => p.name === productName);
+        const minWeight = product?.minWeight || 0.125;
+        const weights = [
+            {v:0.125,t:'⅛ك'},
+            {v:0.25,t:'¼ك'},
+            {v:0.5,t:'½ك'},
+            {v:0.75,t:'¾ك'}
+        ];
+        let filteredWeights = weights.filter(w => w.v >= minWeight);
+        for(let i=1; i<=10; i++){
+            filteredWeights.push({v:i,t:i+'ك'});
+            if(i<10){
+                if(i+0.25 >= minWeight) filteredWeights.push({v:i+0.25,t:i+'و¼ك'});
+                if(i+0.5 >= minWeight) filteredWeights.push({v:i+0.5,t:i+'و½ك'});
+                if(i+0.75 >= minWeight) filteredWeights.push({v:i+0.75,t:i+'و¾ك'});
+            }
+        }
+        for(let i=11;i<=25;i++){
+            filteredWeights.push({v:i,t:i+'ك'});
+        }
+        filteredWeights.forEach(w=>{
+            const isSel = Number(selectedVal) === w.v ? 'selected' : '';
+            opts += `<option value="${w.v}" ${isSel}>${w.t}</option>`;
+        });
+    } else {
+        for(let i=1;i<=20;i++){
+            const isSel = Number(selectedVal) === i ? 'selected' : '';
+            opts += `<option value="${i}" ${isSel}>${i} ${unit}</option>`;
+        }
+    }
+    return opts;
+}
+
 function openCartPreviewModal() {
+    renderCartPreviewItems();
+    document.getElementById('cart-preview-modal').style.display = 'flex';
+}
+
+function renderCartPreviewItems() {
     const listContainer = document.getElementById('cart-preview-items-list');
     let html = '';
     let count = 0;
@@ -791,20 +836,29 @@ function openCartPreviewModal() {
     document.querySelectorAll('.quantity-select').forEach(s => {
         if (s.value !== "0") {
             const itemName = s.dataset.name;
-            const quantityText = s.options[s.selectedIndex].text;
+            const currentVal = s.value;
+            const unit = s.dataset.unit;
+            
+            const product = productsData.find(p => p.name === itemName);
             const noteSelect = document.querySelector(`.note-select[data-name="${itemName}"]`);
             const noteValue = noteSelect ? noteSelect.value : "";
             const notePart = noteValue ? ` (${noteValue})` : "";
 
+            const quantityOptions = generateModalQuantityOptions(unit, currentVal, itemName);
+
             html += `
-                <div class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-3">
-                    <div>
-                        <div class="font-bold text-gray-800 text-sm">${itemName}${notePart}</div>
-                        <div class="text-xs text-green-700 font-bold mt-0.5">الكمية: ${quantityText}</div>
+                <div class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-3 gap-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-gray-800 text-sm truncate">${itemName}${notePart}</div>
                     </div>
-                    <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                        <span>🗑️ حذف</span>
-                    </button>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <select onchange="updateQuantityFromModal('${itemName}', this.value)" class="quantity-select text-xs h-8 w-24">
+                            ${quantityOptions}
+                        </select>
+                        <button onclick="removeItemFromCart('${itemName}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1.5 rounded-lg text-xs font-bold transition">
+                            🗑️
+                        </button>
+                    </div>
                 </div>
             `;
             count++;
@@ -816,7 +870,14 @@ function openCartPreviewModal() {
     }
 
     listContainer.innerHTML = html;
-    document.getElementById('cart-preview-modal').style.display = 'flex';
+}
+
+function updateQuantityFromModal(itemName, newVal) {
+    const mainSelect = document.querySelector(`.quantity-select[data-name="${itemName}"]`);
+    if (mainSelect) {
+        mainSelect.value = newVal;
+        updateStickyCartBar();
+    }
 }
 
 function closeCartPreviewModal() {
@@ -833,7 +894,6 @@ function removeItemFromCart(itemName) {
         noteSelect.value = "";
     }
     updateStickyCartBar();
-    openCartPreviewModal(); // تحديث محتوى القائمة المنبثقة بعد الحذف
 }
 
 function saveCustomerData() {
