@@ -120,6 +120,14 @@
             top: 0; right: 0; width: 6px; height: 100%;
             background: #16a34a;
         }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop-in {
+            animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 <body class="p-2 md:p-8 text-right" dir="rtl">
@@ -129,7 +137,7 @@
         <header class="text-center mb-6">
             <div class="hero-title-box mb-5">
                 <div class="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 shadow-sm">
-                    🌿 طازة كل يوم لحد باب البيت
+                    🌿 أول دليفري متخصص في الخضار والفاكهة في شربين
                 </div>
                 <h1 class="text-2xl md:text-3xl font-extrabold text-green-800 tracking-wide mb-1">
                     دليفري الخضار والفاكهة بشربين
@@ -148,7 +156,7 @@
 
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-4 mb-6 shadow-sm">
             <h2 class="text-xl font-extrabold text-green-800 mb-1">أهلاً بك 👋</h2>
-            <p class="text-xs font-semibold text-gray-600 mb-3">اختر احتياجاتك والمقاس المناسب، وسنصلك لحد باب بيتك.</p>
+            <p class="text-xs font-semibold text-gray-600 mb-3">أسعد الله أوقاتكم،، نتمنى لكم تجربة تسوق سهلة وممتعة.</p>
             <div>
                 <button id="repeat-order-btn" onclick="openRepeatOrdersModal()" class="w-full bg-white border-2 border-green-600 text-green-700 font-bold py-3 px-4 rounded-xl shadow-sm hover:bg-green-50 active:scale-95 transition text-center flex justify-center items-center gap-2">
                     <span class="text-base">🔄 كرر طلبًا سابقًا</span>
@@ -190,8 +198,8 @@
             </div>
         </div>
 
-        <div class="new-arrival-bar" style="overflow: hidden; direction: ltr;">
-            <div class="scrolling-text">
+        <div id="marquee-bar-container" class="new-arrival-bar" style="overflow: hidden; direction: ltr;">
+            <div id="scrolling-ticker-text" class="scrolling-text">
              ✨اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ✨ 
            </div>
         </div> 
@@ -331,6 +339,33 @@
         </div>
     </div>
 
+    <!-- النافذة العائمة الترحيبية (يتم التحكم فيها من جوجل شيت) -->
+    <div id="welcome-popup-modal" style="display: none;" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border-4 border-green-500 overflow-hidden animate-pop-in relative">
+            <div class="bg-gradient-to-l from-green-600 to-emerald-700 p-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📢</span>
+                    <h3 id="welcome-popup-title" class="text-lg font-extrabold tracking-wide">تنبيه هام</h3>
+                </div>
+                <button onclick="closeWelcomePopup()" class="bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center transition">
+                    ✕
+                </button>
+            </div>
+            
+            <div class="p-6 text-right">
+                <div id="welcome-popup-body" class="text-gray-700 text-sm md:text-base font-semibold leading-relaxed space-y-2.5">
+                    <!-- المحتوى القادم من جوجل شيت -->
+                </div>
+                
+                <div class="mt-6 pt-3 border-t border-gray-100">
+                    <button onclick="closeWelcomePopup()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition text-base">
+                        فهمت، ابدأ التصفح الآن 👍
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
 async function shareProject() {
     const shareData = {
@@ -352,6 +387,12 @@ let manualWorkStatus = 'تلقائي';
 let closeAfterHoursMode = false;
 let holidayMode = false;
 let scheduleOverlay = null;
+
+// إعدادات الشريط المتحرك والنافذة العائمة من جوجل شيت
+let sheetTickerText = '✨اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ✨';
+let sheetPopupEnabled = false;
+let sheetPopupTitle = 'تنبيه هام';
+let sheetPopupContent = '';
 
 function updateWorkSchedule() {
     if (manualWorkStatus === 'مفتوح') {
@@ -413,26 +454,27 @@ function updateWorkSchedule() {
         }
     }
 
-    // تعطيل أو تفعيل خانات الكمية والحجم تلقائياً بناءً على حالة الإغلاق أو خارج ساعات العمل
+    // تعطيل أو تفعيل خانات الكمية والحجم تلقائياً بدون كتابة عبارة "مغلق حالياً"
     const isClosedOrHoliday = holidayMode || closeAfterHoursMode;
     document.querySelectorAll('.quantity-select, .note-select').forEach(sel => {
         if (isClosedOrHoliday) {
             sel.disabled = true;
-            sel.style.opacity = '0.5';
+            sel.style.opacity = '0.45';
             sel.style.backgroundColor = '#f3f4f6';
+            sel.style.borderColor = '#d1d5db';
             sel.style.cursor = 'not-allowed';
             if(sel.classList.contains('quantity-select')) {
-                sel.innerHTML = '<option value="0">مغلق حالياً 🔴</option>';
+                sel.value = '0';
             }
         } else {
             sel.disabled = false;
             sel.style.opacity = '1';
             sel.style.backgroundColor = sel.classList.contains('note-select') ? '#eff6ff' : '#fff';
+            sel.style.borderColor = sel.classList.contains('note-select') ? '#3b82f6' : '#16a34a';
             sel.style.cursor = 'pointer';
         }
     });
 
-    // إخفاء الشريط السفلي للطلب إذا أغلقنا المتجر
     if (isClosedOrHoliday) {
         const stickyBar = document.getElementById('sticky-cart-bar');
         if (stickyBar) stickyBar.style.display = 'none';
@@ -440,6 +482,41 @@ function updateWorkSchedule() {
     }
 }
 setInterval(updateWorkSchedule, 30000);
+
+function closeWelcomePopup() {
+    const popup = document.getElementById('welcome-popup-modal');
+    if (popup) popup.style.display = 'none';
+}
+
+function applySheetUIControls() {
+    // 1. تحديث نص الشريط المتحرك الأحمر
+    const tickerEl = document.getElementById('scrolling-ticker-text');
+    const marqueeContainer = document.getElementById('marquee-bar-container');
+    if (tickerEl && marqueeContainer) {
+        if (sheetTickerText && sheetTickerText.trim() !== '') {
+            tickerEl.textContent = sheetTickerText;
+            marqueeContainer.style.display = 'block';
+        } else {
+            marqueeContainer.style.display = 'none';
+        }
+    }
+
+    // 2. إظهار النافذة العائمة الترحيبية إذا كانت مفعلة وبها محتوى
+    if (sheetPopupEnabled && sheetPopupContent.trim() !== '' && !holidayMode) {
+        const titleEl = document.getElementById('welcome-popup-title');
+        const bodyEl = document.getElementById('welcome-popup-body');
+        const modalEl = document.getElementById('welcome-popup-modal');
+
+        if (titleEl) titleEl.textContent = sheetPopupTitle || 'تنبيه هام';
+        if (bodyEl) {
+            const lines = sheetPopupContent.split(/\r?\n|\|/).filter(l => l.trim() !== '');
+            bodyEl.innerHTML = lines.map(line => `<p class="flex items-start gap-2"><span class="text-green-600 mt-0.5">•</span><span>${line.trim()}</span></p>`).join('');
+        }
+        if (modalEl) {
+            modalEl.style.display = 'flex';
+        }
+    }
+}
 
 let productsData = [
     { name: "بصل أحمر", price: 30, unit: "كجم", category: "veg", available: true, minWeight: 0.5}, 
@@ -561,6 +638,9 @@ async function loadPricesFromSheet() {
                 else if (txt === 'إجازة' || txt === 'اجازة') detectedStatus = 'إجازة';
                 else if (txt === 'مفتوح') detectedStatus = 'مفتوح';
                 else if (txt === 'تلقائي') detectedStatus = 'تلقائي';
+                else if (txt.startsWith('شريط:')) {
+                    sheetTickerText = txt.replace('شريط:', '').trim();
+                }
             });
         });
         manualWorkStatus = detectedStatus;
@@ -578,8 +658,42 @@ async function loadPricesFromSheet() {
             const index = column(name);
             return index < 0 ? '' : String(row[index] ?? '').trim();
         };
-        const yes = value => ['نعم', 'متاح', 'نعم متاح', 'yes', 'true', '1'].includes(String(value).toLowerCase());
-        const no = value => ['لا', 'غير متاح', 'نفد', 'no', 'false', '0'].includes(String(value).toLowerCase());
+        const yes = value => ['نعم', 'متاح', 'نعم متاح', 'مفعل', 'تفعيل', 'yes', 'true', '1'].includes(String(value).toLowerCase());
+        const no = value => ['لا', 'غير متاح', 'نفد', 'معطل', 'تعطيل', 'no', 'false', '0'].includes(String(value).toLowerCase());
+
+        // قراءة إعدادات الشريط المتحرك والنافذة العائمة من الأعمدة إذا وُجدت
+        for (let i = 1; i < rows.length; i++) {
+            const tickerColVal = get(rows[i], 'الشريط المتحرك');
+            if (tickerColVal) {
+                sheetTickerText = tickerColVal;
+                break;
+            }
+        }
+
+        for (let i = 1; i < rows.length; i++) {
+            const popStatusVal = get(rows[i], 'حالة النافذة');
+            if (popStatusVal) {
+                sheetPopupEnabled = yes(popStatusVal);
+                break;
+            }
+        }
+
+        for (let i = 1; i < rows.length; i++) {
+            const popTitleVal = get(rows[i], 'عنوان النافذة');
+            if (popTitleVal) {
+                sheetPopupTitle = popTitleVal;
+                break;
+            }
+        }
+
+        for (let i = 1; i < rows.length; i++) {
+            const popBodyVal = get(rows[i], 'محتوى النافذة');
+            if (popBodyVal) {
+                sheetPopupContent = popBodyVal;
+                break;
+            }
+        }
+
         const updatedProducts = [];
 
         rows.slice(1).forEach(row => {
@@ -766,7 +880,8 @@ function init() {
 
         loadCustomerData();
         checkPreviousOrdersCount();
-        updateWorkSchedule(); // تفعيل حالة الإغلاق على القوائم فور تحميل الصفحة
+        updateWorkSchedule();
+        applySheetUIControls();
     } catch (e) { console.error(e); }
 }
 
