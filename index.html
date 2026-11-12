@@ -129,7 +129,6 @@
             animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* فقاعة "شوف رأي الناس" الدائرية العائمة */
         .floating-reviews-bubble {
             position: fixed;
             bottom: 95px;
@@ -363,7 +362,7 @@
         <div onclick="toggleReviewsView()" class="floating-reviews-bubble">
             <div onclick="event.stopPropagation(); closeFloatingBubble();" class="floating-close-btn" title="إغلاق">✕</div>
             <span class="text-base">💬</span>
-            <span class="text-[10px] font-extrabold leading-tight">الآراء</span>
+            <span class="text-[10px] font-extrabold leading-tight">شوف رأي الناس</span>
         </div>
     </div>
 
@@ -431,8 +430,8 @@
     </div>
 
     <script>
-// رابط تطبيق الويب الخاص بجوجل سكربت لتسجيل التقييمات أوتوماتيكياً
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2gwIZvkuMWV5pLgOB9L3gT7Z5TWnE3g4rU14WZwMm9_fWA2HCiie-FQiJwepWYk_HNA/exec';
+// رابط تطبيق الويب الجديد الخاص بجوجل سكربت لتسجيل التقييمات أوتوماتيكياً
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywEkWOJ7L469i_7u0T_H0jr4ySvf0pR8AO9MauKzHoBRipx8Wiv0qjkdINHTsM-I819w/exec';
 
 // المراجعات القديمة الأساسية محفوظة بالكامل لا تفقد أبداً
 let allReviews = [
@@ -489,7 +488,7 @@ function closeFloatingBubble() {
     if (bubble) bubble.style.display = 'none';
 }
 
-// دالة إرسال التقييم أوتوماتيكياً لجوجل شيت عبر السكربت
+// دالة إرسال التقييم أوتوماتيكياً لجوجل شيت عبر السكربت الجديد
 async function submitMyRatingToSheet() {
     const selectedStar = document.querySelector('input[name="rating"]:checked');
     if (!selectedStar) return alert("من فضلك اختر عدد النجوم أولاً! 😊");
@@ -507,7 +506,6 @@ async function submitMyRatingToSheet() {
     btn.textContent = "جاري الإرسال...";
 
     try {
-        // إرسال البيانات للسكربت
         await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -515,8 +513,7 @@ async function submitMyRatingToSheet() {
             body: JSON.stringify({ name: name, text: text, rating: stars })
         });
 
-        // إضافة التقييم محلياً للقائمة فوراً ليراه العميل
-        allReviews.unshift({ name: name, text: text + ` (⭐ ${stars} نجوم)` });
+        allReviews.unshift({ name: name, text: text });
         renderReviews();
 
         finalizeRating();
