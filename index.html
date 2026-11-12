@@ -129,29 +129,47 @@
             animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* فقاعة آراء الناس العائمة */
+        /* الفقاعة الدائرية العائمة في الشمال التحتاني (عكس زر المشاركة) */
         .floating-reviews-bubble {
             position: fixed;
-            bottom: 100px;
-            right: 15px;
+            bottom: 95px;
+            left: 15px;
+            width: 62px;
+            height: 62px;
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
-            padding: 10px 16px;
-            border-radius: 99px;
+            border-radius: 50%;
             box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
             z-index: 35;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            font-size: 0.85rem;
+            justify-content: center;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
             animation: bounceSlow 3s infinite;
             border: 2px solid white;
+            text-align: center;
         }
         .floating-reviews-bubble:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+        }
+        .floating-close-btn {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         @keyframes bounceSlow {
             0%, 100% { transform: translateY(0); }
@@ -332,10 +350,13 @@
         </footer>
     </div>
 
-    <!-- فقاعة "شوف رأي الناس" العائمة -->
-    <div onclick="toggleReviewsView()" class="floating-reviews-bubble">
-        <span>💬</span>
-        <span>شوف رأي الناس</span>
+    <!-- فقاعة "شوف رأي الناس" الدائرية العائمة (في الشمال وتحت مع زر إغلاق) -->
+    <div id="floating-bubble-container">
+        <div onclick="toggleReviewsView()" class="floating-reviews-bubble">
+            <div onclick="event.stopPropagation(); closeFloatingBubble();" class="floating-close-btn" title="إغلاق">✕</div>
+            <span class="text-base">💬</span>
+            <span class="text-[10px] font-extrabold leading-tight">الآراء</span>
+        </div>
     </div>
 
     <!-- الشريط السفلي المدمج والمحدث (عدد + أصناف ومراجعة والتعديل) -->
@@ -421,13 +442,13 @@ const allReviews = [
     { name: "dr.eman", text: "ربنا يجزيك الحسني و زياده\nكفايه ان الخضار و الفاكهه بتقيهم كأنهم لبيتك و الله ساعات بيباتوا في اكياسهم و بلاقيهم لسه زي الفل\nربنا يبارك لك يا ابني و يجعله في ميزان حسناتك" },
     { name: "أ/هبه", text: "شكرا لحضرتك الاوردر ممتاز ان شاء الله مش اخر تعامل" },
     { name: "مدام سالي", text: "الاوردر وصل والحاجه كلها حلوة ما شاء الله تسلم الأيادي\nيارب تفضل علي نفس المستوي علطول بإذن الله\nجزاكم الله خيرا" },
-    { name: "عميل كريم", text: "شكرا على حسن معاملتكم والبدنجان والفاكهه جميله جدا" },
+    { name: "", text: "شكرا على حسن معاملتكم والبدنجان والفاكهه جميله جدا" },
     { name: "مدام سالي", text: "شكرا ع الحاجه جميله جدااااا كالعاده يارب دايما متميزين" },
-    { name: "عميل كريم", text: "شكرا عالحاجة جميلة جدا والبلح نضيف ماشاءالله... كنت برة فمشوار وبناتي اللي استلموا الاوردر.. تسلموا ع امانتكم" },
+    { name: "", text: "شكرا عالحاجة جميلة جدا والبلح نضيف ماشاءالله... كنت برة فمشوار وبناتي اللي استلموا الاوردر.. تسلموا ع امانتكم" },
     { name: "أ/شيرين", text: "الف شكر عالاوردر كله و عالهدية ماشاءالله تبارك الرحمن روعة تسلم ايدك" },
     { name: "أوشو", text: "ماشاء الله الفاكهه جميله جداا والله ومفيش فيها حاجه وحشه\nوخصوصا الفراولة عجبت مامتي جداا كأنها هي اللي شرياها وفضلت تقول انا بنقيها ومش بتبقى حمرا وجامده كدا، ربنا يزيدكو ياارب وان شاء الله مش اخر مره 💜" },
-    { name: "عميل كريم", text: "الفاكهة جميلة جدا زي كل مرة طبعا\nماشاءالله\nربنا يزيدك من نعيم الله و دايما جايبلنا الحاجات الحلوة" },
-    { name: "عميل كريم", text: "البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك" }
+    { name: "", text: "الفاكهة جميلة جدا زي كل مرة طبعا\nماشاءالله\nربنا يزيدك من نعيم الله و دايما جايبلنا الحاجات الحلوة" },
+    { name: "", text: "البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك" }
 ];
 
 function renderReviews() {
@@ -436,7 +457,7 @@ function renderReviews() {
     container.innerHTML = allReviews.map(r => `
         <div class="bg-white border-2 border-orange-100 rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between mb-2 border-b pb-2">
-                <span class="font-bold text-orange-800 text-sm">👤 ${r.name || 'عميل كريم'}</span>
+                <span class="font-bold text-orange-800 text-sm">${r.name ? '👤 ' + r.name : ''}</span>
                 <span class="text-yellow-500 text-xs">⭐⭐⭐⭐⭐</span>
             </div>
             <p class="text-gray-700 text-xs md:text-sm whitespace-pre-line leading-relaxed">${r.text}</p>
@@ -454,6 +475,11 @@ function toggleReviewsView() {
             window.scrollTo({ top: rv.offsetTop - 20, behavior: 'smooth' });
         }
     }
+}
+
+function closeFloatingBubble() {
+    const bubble = document.getElementById('floating-bubble-container');
+    if (bubble) bubble.style.display = 'none';
 }
 
 async function shareProject() {
