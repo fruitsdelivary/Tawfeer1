@@ -300,7 +300,7 @@
             </form>
         </div>
 
-        <!-- قسم المراجعات وآراء العملاء -->
+        <!-- قسم المراجعات وآراء العملاء (يجمع القديم والجديد معاً) -->
         <div id="reviews-view" style="display: none;" class="mb-10 animate-pop-in">
             <div class="flex justify-between items-center mb-4 bg-orange-50 p-3 rounded-xl border border-orange-200">
                 <h3 class="text-xl font-extrabold text-orange-800 flex items-center gap-2">⭐ آراء ومراجعات عملائنا الكرام</h3>
@@ -317,7 +317,7 @@
             <h3 class="text-xl font-extrabold text-gray-800 mb-2">⭐ رأيك يهمنا جداً ⭐</h3>
             <p class="text-sm text-gray-600 mb-5">شاركنا تقييمك بالنجوم واكتب رأيك في خدمتنا في صفحة التقييمات المستقلة</p>
             
-            <a href="https://forms.gle/ucA9BeXWpzurTUMP8" target="_blank" rel="noopener noreferrer"
+            <a href="https://forms.gle/PRYj4v6xLDV3AW5A9" target="_blank" rel="noopener noreferrer"
                class="inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-4 px-6 rounded-2xl shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition text-base md:text-lg border-2 border-yellow-600">
                 <span>⭐</span>
                 <span>قيّم تجربتك واكتب رأيك الآن</span>
@@ -418,7 +418,8 @@
     </div>
 
     <script>
-let allReviews = [
+// التقييمات الثابتة القديمة
+let staticReviews = [
     { name: "م/محمد", text: "ايه رأيكم في ورق العنب؟ حلو جداً والله ❤️❤️ تسلم ايدك بجد" },
     { name: "Aml Saad", text: "ماشاء الله تبارك الله والله العظيم لو اعرف انو ورق العنب هيبقي نضيف وجميل كدة كنت طلبت ٢ ك كمان .ربنا يبارك فيكم الف شكر" },
     { name: "أ/سارة", text: "ايه تقييم حضرتك لنظام الطلب الجديد؟ جميل جدا جدا بيفكرنى بكل اللى محتاجاه" },
@@ -441,13 +442,57 @@ let allReviews = [
     { name: "", text: "البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك" }
 ];
 
-function renderReviews() {
+let dynamicReviews = [];
+const REVIEWS_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/190JiCNDIszJipXgd1BPPs4Gb6jqa0jmcT8uafwd-l50/export?format=csv';
+
+async function loadReviewsFromSheet() {
+    try {
+        const response = await fetch(REVIEWS_SHEET_CSV_URL, { cache: 'no-store' });
+        if (!response.ok) return;
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+        if (rows.length < 2) return;
+
+        const headers = rows[0].map(h => String(h).replace(/^\uFEFF/, '').trim());
+        const getCol = (name) => headers.findIndex(h => h.includes(name));
+
+        // تخمين أعمدة نموذج جوجل للتقييمات (الطابع الزمني، الاسم، التقييم، التعليق)
+        const nameIdx = getCol('اسبك') !== -1 ? getCol('اسبك') : getCol('اسم');
+        const textIdx = headers.findIndex(h => h.includes('اكتب') || h.includes('رأيك') || h.includes('تعليق'));
+
+        const parsed = [];
+        for (let i = 1; i < rows.length; i++) {
+            const r = rows[i];
+            const name = nameIdx !== -1 ? String(r[nameIdx] || '').trim() : '';
+            // البحث عن نص التعليق في الأعمدة لو وجد
+            let text = '';
+            if (textIdx !== -1) {
+                text = String(r[textIdx] || '').trim();
+            } else if (r.length >= 4) {
+                text = String(r[3] || r[2] || '').trim(); // العمود الثالث أو الرابع غالباً هو التعليق
+            }
+            if (text) {
+                parsed.unshift({ name: name, text: text }); // الجديد فوق
+            }
+        }
+        dynamicReviews = parsed;
+    } catch (e) {
+        console.warn('تعذر جلب التقييمات الجديدة:', e);
+    }
+}
+
+async function renderReviews() {
+    await loadReviewsFromSheet();
     const container = document.getElementById('reviews-container');
     if (!container) return;
-    container.innerHTML = allReviews.map(r => `
+
+    // دمج التقييمات الجديدة (التي تم إرسالها من النموذج) مع التقييمات القديمة
+    const combinedReviews = [...dynamicReviews, ...staticReviews];
+
+    container.innerHTML = combinedReviews.map(r => `
         <div class="bg-white border-2 border-orange-100 rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between mb-2 border-b pb-2">
-                <span class="font-bold text-orange-800 text-sm">${r.name ? '👤 ' + r.name : ''}</span>
+                <span class="font-bold text-orange-800 text-sm">${r.name ? '👤 ' + r.name : '👤 عميل كريم'}</span>
                 <span class="text-yellow-500 text-xs">⭐⭐⭐⭐⭐</span>
             </div>
             <p class="text-gray-700 text-xs md:text-sm whitespace-pre-line leading-relaxed">${r.text}</p>
