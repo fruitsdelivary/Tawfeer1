@@ -128,6 +128,35 @@
         .animate-pop-in {
             animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        /* فقاعة آراء الناس العائمة */
+        .floating-reviews-bubble {
+            position: fixed;
+            bottom: 100px;
+            right: 15px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 99px;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            animation: bounceSlow 3s infinite;
+            border: 2px solid white;
+        }
+        .floating-reviews-bubble:hover {
+            transform: scale(1.05);
+        }
+        @keyframes bounceSlow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
     </style>
 </head>
 <body class="p-2 md:p-8 text-right" dir="rtl">
@@ -137,7 +166,7 @@
         <header class="text-center mb-6">
             <div class="hero-title-box mb-5">
                 <div class="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 shadow-sm">
-                    🌿 جودة وسعر  وع الفرازة 
+                    🌿 جودة وسعر وع الفرازة 
                 </div>
                 <h1 class="text-2xl md:text-3xl font-extrabold text-green-800 tracking-wide mb-1">
                     دليفري الخضار والفاكهة بشربين
@@ -258,11 +287,16 @@
             </form>
         </div>
 
-        <div id="reviews-view" style="display: none;" class="mb-10">
-            <button onclick="document.getElementById('reviews-view').style.display='none'" class="w-full mb-6 bg-gray-400 text-white font-bold py-4 rounded-2xl shadow-md text-lg">
+        <!-- قسم المراجعات وآراء العملاء -->
+        <div id="reviews-view" style="display: none;" class="mb-10 animate-pop-in">
+            <div class="flex justify-between items-center mb-4 bg-orange-50 p-3 rounded-xl border border-orange-200">
+                <h3 class="text-xl font-extrabold text-orange-800 flex items-center gap-2">⭐ آراء ومراجعات عملائنا الكرام</h3>
+                <button onclick="toggleReviewsView()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center transition">✕</button>
+            </div>
+            <div id="reviews-container" class="space-y-4 max-h-[600px] overflow-y-auto p-2"></div>
+            <button onclick="toggleReviewsView()" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 rounded-xl shadow-md text-base transition">
                 🔙 إخفاء المراجعات والعودة للقائمة
             </button>
-            <div id="reviews-container" class="space-y-4"></div>
         </div>
 
         <div class="rating-card">
@@ -282,13 +316,13 @@
         <footer class="mt-12 pt-6 border-t-2 text-center">
             <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-6 font-bold text-gray-700 text-sm italic">🕒 مواعيد العمل من 7 ص إلى 4:15 م يومياً عدا الجمعة</div>
 
-            <button onclick="const rv = document.getElementById('reviews-view'); rv.style.display = rv.style.display === 'none' ? 'block' : 'none'; window.scrollTo(0, rv.offsetTop);" 
-                    class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl inline-block shadow-md mb-4 text-lg active:scale-95 transition flex items-center justify-center gap-2">
+            <button onclick="toggleReviewsView()" 
+                    class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl inline-block shadow-md mb-4 text-lg active:scale-95 transition flex items-center justify-center gap-2 hover:bg-orange-600">
                 ⭐ مراجعات وآراء عملاءنا الكرام
             </button>
 
-            <a href="https://wa.me/201032872750" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl inline-block shadow-md mb-4 text-lg">📨 مراسلة واتساب مباشرة</a>
-            <a href="https://www.facebook.com/share/1HkZeEoRr3/" class="w-full bg-blue-700 text-white font-bold py-4 rounded-2xl inline-block shadow-md mb-8 text-lg">🔵 زيارة صفحة الفيسبوك</a>
+            <a href="https://wa.me/201032872750" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl inline-block shadow-md mb-4 text-lg hover:bg-green-600">📨 مراسلة واتساب مباشرة</a>
+            <a href="https://www.facebook.com/share/1HkZeEoRr3/" class="w-full bg-blue-700 text-white font-bold py-4 rounded-2xl inline-block shadow-md mb-8 text-lg hover:bg-blue-800">🔵 زيارة صفحة الفيسبوك</a>
 
             <div class="mt-8 mb-4 flex flex-col items-center justify-center w-full">
                 <p class="text-xs text-gray-400 mb-2">عدد الزيارات</p>
@@ -296,6 +330,12 @@
                 <script type="text/javascript" src="https://counter1.optistats.ovh/private/counter.js?c=dbm85qbphbnfcgh4btfanww4m22gsq7b&down=async" async></script>
             </div>
         </footer>
+    </div>
+
+    <!-- فقاعة "شوف رأي الناس" العائمة -->
+    <div onclick="toggleReviewsView()" class="floating-reviews-bubble">
+        <span>💬</span>
+        <span>شوف رأي الناس</span>
     </div>
 
     <!-- الشريط السفلي المدمج والمحدث (عدد + أصناف ومراجعة والتعديل) -->
@@ -367,6 +407,55 @@
     </div>
 
     <script>
+const allReviews = [
+    { name: "م/محمد", text: "ايه رأيكم في ورق العنب؟ حلو جداً والله ❤️❤️ تسلم ايدك بجد" },
+    { name: "Aml Saad", text: "ماشاء الله تبارك الله والله العظيم لو اعرف انو ورق العنب هيبقي نضيف وجميل كدة كنت طلبت ٢ ك كمان .ربنا يبارك فيكم الف شكر" },
+    { name: "أ/سارة", text: "ايه تقييم حضرتك لنظام الطلب الجديد؟ جميل جدا جدا بيفكرنى بكل اللى محتاجاه" },
+    { name: "أ.مدحت", text: "السلام عليكم\nملاحظه :\nالبطيخه السابقه كانت أحلى بطيخه أكلناها فى حياتنا ، ربنا يوسع عليكم.\nبطيخه زى بتاعة المره اللي فاتت\nوشكرا" },
+    { name: "د.ميرفت", text: "السلام عليكم\nلسه فاتحه البطيخه النهارده\nسكككككككر\nتسلم ايدك" },
+    { name: "Om Eslam", text: "تمام الحمد لله أنا دوخت علي رقمك وصفحتك واضطريت اجيب من ناس تانيه بس بصراحه التعامل مع حضرتك حاجه تانيه" },
+    { name: "السيد حسن", text: "جزاك الله خيرا\nالحاجه ما شاء ممتازة ومتنقيه كويس جدا وأسعارها زي السوق وكل حاجه ما شاء الله تبارك الله أحسن من التانية وكمان المواعيد ممتازة ما شاء الله\nجزاك الله خيرا 🌹🌹" },
+    { name: "Adam", text: "خدمه اكتر من ممتازه والله والخضار والفاكهه فعلا ع الفرازه كان الواحد هوه بنفسه ال بيشترى وكمان ال بيوصل الاوردر ناس محترمه جدااا من نجاح لنجاح وجزاكم الله خيرا" },
+    { name: "dr. Amira", text: "البطيخ؟ جميل جدا 👏🏻👏🏻👏🏻" },
+    { name: "أ/سارة", text: "ما شاء الله الحاجة جميلة وطازة، ده أول تعامل معاكم وعجبني جدا الحاجة وسرعة التوصيل" },
+    { name: "dr.eman", text: "ربنا يجزيك الحسني و زياده\nكفايه ان الخضار و الفاكهه بتقيهم كأنهم لبيتك و الله ساعات بيباتوا في اكياسهم و بلاقيهم لسه زي الفل\nربنا يبارك لك يا ابني و يجعله في ميزان حسناتك" },
+    { name: "أ/هبه", text: "شكرا لحضرتك الاوردر ممتاز ان شاء الله مش اخر تعامل" },
+    { name: "مدام سالي", text: "الاوردر وصل والحاجه كلها حلوة ما شاء الله تسلم الأيادي\nيارب تفضل علي نفس المستوي علطول بإذن الله\nجزاكم الله خيرا" },
+    { name: "عميل كريم", text: "شكرا على حسن معاملتكم والبدنجان والفاكهه جميله جدا" },
+    { name: "مدام سالي", text: "شكرا ع الحاجه جميله جدااااا كالعاده يارب دايما متميزين" },
+    { name: "عميل كريم", text: "شكرا عالحاجة جميلة جدا والبلح نضيف ماشاءالله... كنت برة فمشوار وبناتي اللي استلموا الاوردر.. تسلموا ع امانتكم" },
+    { name: "أ/شيرين", text: "الف شكر عالاوردر كله و عالهدية ماشاءالله تبارك الرحمن روعة تسلم ايدك" },
+    { name: "أوشو", text: "ماشاء الله الفاكهه جميله جداا والله ومفيش فيها حاجه وحشه\nوخصوصا الفراولة عجبت مامتي جداا كأنها هي اللي شرياها وفضلت تقول انا بنقيها ومش بتبقى حمرا وجامده كدا، ربنا يزيدكو ياارب وان شاء الله مش اخر مره 💜" },
+    { name: "عميل كريم", text: "الفاكهة جميلة جدا زي كل مرة طبعا\nماشاءالله\nربنا يزيدك من نعيم الله و دايما جايبلنا الحاجات الحلوة" },
+    { name: "عميل كريم", text: "البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك" }
+];
+
+function renderReviews() {
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+    container.innerHTML = allReviews.map(r => `
+        <div class="bg-white border-2 border-orange-100 rounded-2xl p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2 border-b pb-2">
+                <span class="font-bold text-orange-800 text-sm">👤 ${r.name || 'عميل كريم'}</span>
+                <span class="text-yellow-500 text-xs">⭐⭐⭐⭐⭐</span>
+            </div>
+            <p class="text-gray-700 text-xs md:text-sm whitespace-pre-line leading-relaxed">${r.text}</p>
+        </div>
+    `).join('');
+}
+
+function toggleReviewsView() {
+    const rv = document.getElementById('reviews-view');
+    if (rv) {
+        const isHidden = rv.style.display === 'none';
+        rv.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            renderReviews();
+            window.scrollTo({ top: rv.offsetTop - 20, behavior: 'smooth' });
+        }
+    }
+}
+
 async function shareProject() {
     const shareData = {
         title: 'دليفري الخضار والفاكهة بشربين',
@@ -388,7 +477,6 @@ let closeAfterHoursMode = false;
 let holidayMode = false;
 let scheduleOverlay = null;
 
-// إعدادات الشريط المتحرك والنافذة العائمة من جوجل شيت
 let sheetTickerText = '✨اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ✨';
 let sheetPopupEnabled = false;
 let sheetPopupTitle = 'تنبيه هام';
@@ -426,7 +514,6 @@ function updateWorkSchedule() {
             (day === 'Saturday' && currentTime < 7 * 60);
     }
 
-    // إدارة طبقة إجازة يوم الجمعة بالشاشة الشفافة
     if (holidayMode) {
         if (!scheduleOverlay) {
             scheduleOverlay = document.createElement('div');
@@ -454,7 +541,6 @@ function updateWorkSchedule() {
         }
     }
 
-    // تعطيل أو تفعيل خانات الكمية والحجم تلقائياً بدون كتابة عبارة "مغلق حالياً"
     const isClosedOrHoliday = holidayMode || closeAfterHoursMode;
     document.querySelectorAll('.quantity-select, .note-select').forEach(sel => {
         if (isClosedOrHoliday) {
@@ -489,7 +575,6 @@ function closeWelcomePopup() {
 }
 
 function applySheetUIControls() {
-    // 1. تحديث نص الشريط المتحرك الأحمر
     const tickerEl = document.getElementById('scrolling-ticker-text');
     const marqueeContainer = document.getElementById('marquee-bar-container');
     if (tickerEl && marqueeContainer) {
@@ -501,7 +586,6 @@ function applySheetUIControls() {
         }
     }
 
-    // 2. إظهار النافذة العائمة الترحيبية إذا كانت مفعلة وبها محتوى
     if (sheetPopupEnabled && sheetPopupContent.trim() !== '' && !holidayMode) {
         const titleEl = document.getElementById('welcome-popup-title');
         const bodyEl = document.getElementById('welcome-popup-body');
@@ -661,7 +745,6 @@ async function loadPricesFromSheet() {
         const yes = value => ['نعم', 'متاح', 'نعم متاح', 'مفعل', 'تفعيل', 'yes', 'true', '1'].includes(String(value).toLowerCase());
         const no = value => ['لا', 'غير متاح', 'نفد', 'معطل', 'تعطيل', 'no', 'false', '0'].includes(String(value).toLowerCase());
 
-        // قراءة إعدادات الشريط المتحرك والنافذة العائمة من الأعمدة إذا وُجدت
         for (let i = 1; i < rows.length; i++) {
             const tickerColVal = get(rows[i], 'الشريط المتحرك');
             if (tickerColVal) {
