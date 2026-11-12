@@ -57,12 +57,8 @@
         .rating-card {
             background: white; border: 2px dashed #fbbf24; border-radius: 20px;
             padding: 25px; margin: 30px auto; text-align: center; max-width: 500px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1);
         }
-        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 12px; }
-        .star-rating input { display: none; }
-        .star-rating label { font-size: 2.8rem; color: #e5e7eb; cursor: pointer; transition: transform 0.2s, color 0.2s; }
-        .star-rating label:hover { transform: scale(1.2); }
-        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; }  
    
         .item-price-part { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; flex-shrink: 0; text-align: center; }
         .old-price { color: #9ca3af; text-decoration: line-through; font-size: 0.65rem; white-space: nowrap; }
@@ -316,26 +312,18 @@
             </button>
         </div>
 
-        <!-- بطاقة التقييم وكتابة الرأي -->
+        <!-- بطاقة التقييم المستقلة (تفتح Google Form) -->
         <div class="rating-card">
-            <h3 class="text-lg font-bold text-gray-700 mb-2">⭐ رأيك يهمنا جداً ⭐</h3>
-            <p class="text-sm text-gray-500 mb-4">قيم تجربتك معنا واكتب رأيك ليصلنا مباشرة في جدول المتابعة (أعلى تقييم ناحية اليسار)</p>
+            <h3 class="text-xl font-extrabold text-gray-800 mb-2">⭐ رأيك يهمنا جداً ⭐</h3>
+            <p class="text-sm text-gray-600 mb-5">شاركنا تقييمك بالنجوم واكتب رأيك في خدمتنا في صفحة التقييمات المستقلة</p>
             
-            <div class="star-rating mb-4">
-                <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
-            </div>
-
-            <div class="space-y-3 mb-4 text-right">
-                <input type="text" id="reviewer-name" placeholder="اسمك الكريم (اختياري)..." class="w-full p-2.5 border border-gray-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-yellow-500 outline-none">
-                <textarea id="reviewer-text" rows="2" placeholder="اكتب رأيك أو تعليقك هنا..." class="w-full p-2.5 border border-gray-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
-            </div>
-
-            <button onclick="submitMyRatingToSheet()" id="confirm-btn" class="bg-yellow-500 text-white px-6 py-2.5 rounded-full font-bold shadow-md hover:bg-yellow-600 transition text-sm">تأكيد وإرسال التقييم ✅</button>
-            <div id="rating-feedback" class="mt-4 font-bold text-green-600 hidden">شكراً لوقتك، تم إرسال تقييمك وتسجيله بنجاح! ❤️</div>
+            <a href="https://forms.gle/ucA9BeXWpzurTUMP8" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-4 px-6 rounded-2xl shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition text-base md:text-lg border-2 border-yellow-600">
+                <span>⭐</span>
+                <span>قيّم تجربتك واكتب رأيك الآن</span>
+                <span>✍️</span>
+            </a>
+            <p class="text-xs text-gray-400 mt-3 font-semibold">يفتح نموذج التقييم في صفحة مستقلة تماماً</p>
         </div>
 
         <footer class="mt-12 pt-6 border-t-2 text-center">
@@ -430,9 +418,6 @@
     </div>
 
     <script>
-// رابط تطبيق الويب الجديد والمدبج بالكامل
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE1Bo6TbAHzVGLbjimcrmpd7FM1gQtQrK4rLQFItSYxwRraP43R1977aFH-7OfA6Sxdg/exec';
-
 let allReviews = [
     { name: "م/محمد", text: "ايه رأيكم في ورق العنب؟ حلو جداً والله ❤️❤️ تسلم ايدك بجد" },
     { name: "Aml Saad", text: "ماشاء الله تبارك الله والله العظيم لو اعرف انو ورق العنب هيبقي نضيف وجميل كدة كنت طلبت ٢ ك كمان .ربنا يبارك فيكم الف شكر" },
@@ -485,43 +470,6 @@ function toggleReviewsView() {
 function closeFloatingBubble() {
     const bubble = document.getElementById('floating-bubble-container');
     if (bubble) bubble.style.display = 'none';
-}
-
-// دالة إرسال التقييم وتسجيله في الشيت وعرضه فوراً
-async function submitMyRatingToSheet() {
-    const selectedStar = document.querySelector('input[name="rating"]:checked');
-    if (!selectedStar) return alert("من فضلك اختر عدد النجوم أولاً! 😊");
-    
-    const stars = selectedStar.value;
-    const name = document.getElementById('reviewer-name').value.trim();
-    const text = document.getElementById('reviewer-text').value.trim();
-
-    if (!text) {
-        return alert("من فضلك اكتب تعليقاً أو رأياً مختصراً في خانة التعليق! 🙏");
-    }
-
-    const btn = document.getElementById('confirm-btn');
-    btn.disabled = true;
-    btn.textContent = "جاري الإرسال...";
-
-    try {
-        await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, text: text, rating: stars })
-        });
-
-        allReviews.unshift({ name: name, text: text });
-        renderReviews();
-
-        finalizeRating();
-    } catch (error) {
-        console.error(error);
-        alert("حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.");
-        btn.disabled = false;
-        btn.textContent = "تأكيد وإرسال التقييم ✅";
-    }
 }
 
 async function shareProject() {
@@ -783,7 +731,6 @@ async function loadPricesFromSheet() {
         if (rows.length < 2) throw new Error('جدول الأسعار فارغ أو غير صالح');
 
         let detectedStatus = 'تلقائي';
-        let sheetReviews = [];
 
         rows.forEach(row => {
             row.forEach(cell => {
@@ -803,9 +750,6 @@ async function loadPricesFromSheet() {
             String(value).replace(/^\uFEFF/, '').trim()
         );
         const column = name => headers.indexOf(name);
-        
-        const revNameIdx = column('اسم العميل');
-        const revTextIdx = column('نص المراجعة');
 
         const requiredColumns = ['اسم الصنف', 'السعر بالجنيه', 'الوحدة', 'القسم', 'متاح؟'];
         if (requiredColumns.some(name => column(name) === -1)) {
@@ -842,14 +786,6 @@ async function loadPricesFromSheet() {
         const updatedProducts = [];
 
         rows.slice(1).forEach(row => {
-            if (revTextIdx !== -1 && row[revTextIdx]) {
-                const rName = revNameIdx !== -1 ? String(row[revNameIdx] ?? '').trim() : '';
-                const rText = String(row[revTextIdx] ?? '').trim();
-                if (rText) {
-                    sheetReviews.push({ name: rName, text: rText });
-                }
-            }
-
             const name = get(row, 'اسم الصنف');
             if (!name) return;
             const price = cleanSheetNumber(get(row, 'السعر بالجنيه'));
@@ -907,14 +843,10 @@ async function loadPricesFromSheet() {
             updatedProducts.push(product);
         });
 
-        if (sheetReviews.length > 0) {
-            allReviews = [...allReviews, ...sheetReviews];
-        }
-
         if (!updatedProducts.length) throw new Error('لم يتم العثور على أصناف بأسعار صحيحة');
         productsData = updatedProducts;
     } catch (error) {
-        console.warn('تعذر تحديث الأسعار أو المراجعات من Google Sheets:', error);
+        console.warn('تعذر تحديث الأسعار من Google Sheets:', error);
     }
 }
 
@@ -1389,12 +1321,6 @@ function generateWhatsAppOrder() {
     msg += '📌 *الملاحظات والعنوان:*\n' + (fullNotesAndAddr || 'لا يوجد');
 
     window.open(`https://wa.me/201032872750?text=${encodeURIComponent(msg)}`);
-}
-
-function finalizeRating() {
-    const f = document.getElementById('rating-feedback'), b = document.getElementById('confirm-btn'), s = document.querySelector('.star-rating');
-    if(f) f.classList.remove('hidden'); if(b) b.classList.add('hidden');
-    if(s) { s.style.pointerEvents = 'none'; s.style.opacity = '0.5'; }
 }
 
 function filterProducts() {
