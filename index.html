@@ -436,7 +436,7 @@ let staticReviews = [
     { name: "مدام سالي", text: "شكرا ع الحاجه جميله جدااااا كالعاده يارب دايما متميزين" },
     { name: "", text: "شكرا عالحاجة جميلة جدا والبلح نضيف ماشاءالله... كنت برة فمشوار وبناتي اللي استلموا الاوردر.. تسلموا ع امانتكم" },
     { name: "أ/شيرين", text: "الف شكر عالاوردر كله و عالهدية ماشاءالله تبارك الرحمن روعة تسلم ايدك" },
-    { name: "أوشو", text: "ماشاء الله الفاكهه جميله جداا والله ومفيش فيها حاجه وحشه\nوخصوصا الفراولة عجبت مامتي جداا كأنها هي اللي شرياها وفضلت تقول انا بنقيها ومش بتبقى حمرا وجامده كدا، ربنا يزيدكو ياارب وان شاء الله مش اخر مره 💜" },
+    { name: "أوشو", text: "ماشاء الله الفاكهه جميلة جداا والله ومفيش فيها حاجه وحشه\nوخصوصا الفراولة عجبت مامتي جداا كأنها هي اللي شرياها وفضلت تقول انا بنقيها ومش بتبقى حمرا وجامده كدا، ربنا يزيدكو ياارب وان شاء الله مش اخر مره 💜" },
     { name: "", text: "الفاكهة جميلة جدا زي كل مرة طبعا\nماشاءالله\nربنا يزيدك من نعيم الله و دايما جايبلنا الحاجات الحلوة" },
     { name: "", text: "البطيخ جميل جداً ما شاء الله، والخوخ تحفه، والمشمش ربنا يبارك" }
 ];
@@ -1049,11 +1049,14 @@ async function startApp() {
     init(false);
 }
 
+// التحديث التلقائي الذكي في الخلفية كل دقيقتين (مع الحفاظ على مكان الشاشة والسلة)
 setInterval(async () => {
     try {
+        const currentScroll = window.scrollY;
         await loadPricesFromSheet();
         updateWorkSchedule();
         init(true);
+        window.scrollTo(0, currentScroll);
     } catch (e) {
         console.warn("تعذر التحديث التلقائي في الخلفية:", e);
     }
@@ -1251,7 +1254,7 @@ function saveOrderToHistory(orderItems) {
     };
 
     history.unshift(newOrder);
-    if (history.length > 3) history = history.slice(0, 3);
+    if (history.length > 5) history = history.slice(0, 5);
     localStorage.setItem('shirbin_orders_history', JSON.stringify(history));
     checkPreviousOrdersCount();
 }
@@ -1393,7 +1396,6 @@ function generateWhatsAppOrder() {
         msg += '-----------------------------------\n';
     }
     
-    // إضافة عدد الأصناف الإجمالي بخط عريض وفصل بعد الفواكه أو نهاية الأصناف
     msg += `🛒 *عدد الأصناف: ${selectedItems.length}*\n`;
     msg += '-----------------------------------\n';
 
@@ -1404,6 +1406,12 @@ function generateWhatsAppOrder() {
     msg += '📌 *الملاحظات والعنوان:*\n' + (fullNotesAndAddr || 'لا يوجد');
 
     window.open(`https://wa.me/201032872750?text=${encodeURIComponent(msg)}`);
+
+    // تفريغ السلة وإعادة الصفحة للقائمة الرئيسية فوراً
+    document.querySelectorAll('.quantity-select').forEach(s => s.value = "0");
+    document.querySelectorAll('.note-select').forEach(s => s.value = "");
+    updateStickyCartBar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterProducts() {
