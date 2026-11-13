@@ -315,7 +315,7 @@
         <!-- بطاقة التقييم المستقلة (تفتح Google Form) -->
         <div class="rating-card">
             <h3 class="text-xl font-extrabold text-gray-800 mb-2">⭐ رأيك يهمنا جداً ⭐</h3>
-            <p class="text-sm text-gray-600 mb-5">شاركنا تقييمك بالنجوم واكتب رأيك في خدمتنا في صفحة التقييمات</p>
+            <p class="text-sm text-gray-600 mb-5">شاركنا تجربتك وتقييمك واكتب رأيك في خدمتنا في صفحة التقييمات</p>
             
             <a href="https://forms.gle/PRYj4v6xLDV3AW5A9" target="_blank" rel="noopener noreferrer"
                class="inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-4 px-6 rounded-2xl shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition text-base md:text-lg border-2 border-yellow-600">
@@ -1385,24 +1385,24 @@ function generateWhatsAppOrder() {
     if (cNotes) fullNotesAndAddr += `ملاحظات: ${cNotes}\n`;
 
     let msg = '📝 *طلب جديد عبر قائمة الأسعار التفاعلية*\n';
-    msg += '-----------------------------------\n';
+    msg += '-----------------------------\n';
     
     if (vegItems) {
         msg += '🥬 *الخضروات:*\n' + vegItems;
-        msg += '-----------------------------------\n';
+        msg += '-----------------------------\n';
     }
     if (fruitItems) {
         msg += '🍉 *الفواكه:*\n' + fruitItems;
-        msg += '-----------------------------------\n';
+        msg += '-----------------------------\n';
     }
     
     msg += `🛒 *عدد الأصناف: ${selectedItems.length}*\n`;
-    msg += '-----------------------------------\n';
+    msg += '-----------------------------\n';
 
     msg += '📦 *التوصيل:*\n';
-    msg += '-----------------------------------\n';
+    msg += '-----------------------------\n';
     msg += '💰 *الإجمالي:*\n';
-    msg += '-----------------------------------\n';
+    msg += '-----------------------------\n';
     msg += '📌 *الملاحظات والعنوان:*\n' + (fullNotesAndAddr || 'لا يوجد');
 
     window.open(`https://wa.me/201032872750?text=${encodeURIComponent(msg)}`);
