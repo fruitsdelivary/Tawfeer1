@@ -895,7 +895,6 @@ async function loadPricesFromSheet() {
 
 function init(preserveCart = false) {
     try {
-        // حفظ اختيارات العميل الحالية (الكميات والأحجام) قبل إعادة رسم القائمة
         const savedQuantities = {};
         const savedNotes = {};
         if (preserveCart) {
@@ -1021,13 +1020,11 @@ function init(preserveCart = false) {
             }
             s.innerHTML = opts;
 
-            // استعادة الكمية المختارة سابقاً إذا كان الصنف لا يزال متاحاً
             if (preserveCart && savedQuantities[s.dataset.name]) {
                 s.value = savedQuantities[s.dataset.name];
             }
         });
 
-        // استعادة الأحجام المختارة سابقاً
         if (preserveCart) {
             document.querySelectorAll('.note-select').forEach(s => {
                 if (savedNotes[s.dataset.name]) {
@@ -1052,7 +1049,6 @@ async function startApp() {
     init(false);
 }
 
-// التحديث التلقائي الذكي في الخلفية كل دقيقتين (بدون فقدان اختيارات العميل)
 setInterval(async () => {
     try {
         await loadPricesFromSheet();
@@ -1397,6 +1393,10 @@ function generateWhatsAppOrder() {
         msg += '-----------------------------------\n';
     }
     
+    // إضافة عدد الأصناف الإجمالي بخط عريض وفصل بعد الفواكه أو نهاية الأصناف
+    msg += `🛒 *عدد الأصناف: ${selectedItems.length}*\n`;
+    msg += '-----------------------------------\n';
+
     msg += '📦 *التوصيل:*\n';
     msg += '-----------------------------------\n';
     msg += '💰 *الإجمالي:*\n';
