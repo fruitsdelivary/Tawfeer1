@@ -538,6 +538,7 @@ let sheetTickerText = '✨اللهم صلِّ وسلم وبارك على نبي�
 let sheetPopupEnabled = false;
 let sheetPopupTitle = 'تنبيه هام';
 let sheetPopupContent = '';
+let popupShownOnce = false;
 
 function updateWorkSchedule() {
     if (manualWorkStatus === 'مفتوح') {
@@ -643,7 +644,7 @@ function applySheetUIControls() {
         }
     }
 
-    if (sheetPopupEnabled && sheetPopupContent.trim() !== '' && !holidayMode) {
+    if (sheetPopupEnabled && sheetPopupContent.trim() !== '' && !holidayMode && !popupShownOnce) {
         const titleEl = document.getElementById('welcome-popup-title');
         const bodyEl = document.getElementById('welcome-popup-body');
         const modalEl = document.getElementById('welcome-popup-modal');
@@ -655,6 +656,7 @@ function applySheetUIControls() {
         }
         if (modalEl) {
             modalEl.style.display = 'flex';
+            popupShownOnce = true;
         }
     }
 }
@@ -891,8 +893,20 @@ async function loadPricesFromSheet() {
     }
 }
 
-function init() {
+function init(preserveCart = false) {
     try {
+        // حفظ اختيارات العميل الحالية (الكميات والأحجام) قبل إعادة رسم القائمة
+        const savedQuantities = {};
+        const savedNotes = {};
+        if (preserveCart) {
+            document.querySelectorAll('.quantity-select').forEach(s => {
+                if (s.value && s.value !== '0') savedQuantities[s.dataset.name] = s.value;
+            });
+            document.querySelectorAll('.note-select').forEach(s => {
+                if (s.value) savedNotes[s.dataset.name] = s.value;
+            });
+        }
+
         const now = new Date();
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         document.getElementById('date-display').innerText = now.toLocaleDateString('ar-EG', options).replace(" في ", " - ");
@@ -1006,20 +1020,48 @@ function init() {
                 }
             }
             s.innerHTML = opts;
+
+            // استعادة الكمية المختارة سابقاً إذا كان الصنف لا يزال متاحاً
+            if (preserveCart && savedQuantities[s.dataset.name]) {
+                s.value = savedQuantities[s.dataset.name];
+            }
         });
 
-        loadCustomerData();
-        checkPreviousOrdersCount();
+        // استعادة الأحجام المختارة سابقاً
+        if (preserveCart) {
+            document.querySelectorAll('.note-select').forEach(s => {
+                if (savedNotes[s.dataset.name]) {
+                    s.value = savedNotes[s.dataset.name];
+                }
+            });
+            filterProducts();
+        } else {
+            loadCustomerData();
+            checkPreviousOrdersCount();
+        }
+
         updateWorkSchedule();
         applySheetUIControls();
+        if (preserveCart) updateStickyCartBar();
     } catch (e) { console.error(e); }
 }
 
 async function startApp() {
     await loadPricesFromSheet();
     updateWorkSchedule();
-    init();
+    init(false);
 }
+
+// التحديث التلقائي الذكي في الخلفية كل دقيقتين (بدون فقدان اختيارات العميل)
+setInterval(async () => {
+    try {
+        await loadPricesFromSheet();
+        updateWorkSchedule();
+        init(true);
+    } catch (e) {
+        console.warn("تعذر التحديث التلقائي في الخلفية:", e);
+    }
+}, 120000);
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startApp);
