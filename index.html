@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>دليفري الخضار والفاكهة..قائمة الأسعار ونموذج الطلب</title>
+    
+    <!-- ربط ملف الـ PWA Manifest وتفعيل لون المتصفح -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#16a34a">
+    
     <!-- Google Tag Manager -->
     <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KV5JX7DJ"></script>
     <script>
@@ -12,6 +17,7 @@
       gtag('js', new Date());
     </script>
     <!-- End Google Tag Manager -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
 .new-arrival-bar {
@@ -145,13 +151,13 @@
         .floating-reviews-bubble:hover {
             transform: scale(1.1);
         }
-        /* فقاعة تحميل التطبيق العائمة (على اليمين) */
+        /* فقاعة تحميل التطبيق العائمة (على اليمين - بنفس حجم وشكل فقاعة التقييمات) */
         .floating-app-bubble {
             position: fixed;
             bottom: 95px;
             right: 15px;
-            width: 66px;
-            height: 66px;
+            width: 62px;
+            height: 62px;
             background: linear-gradient(135deg, #16a34a, #15803d);
             color: white;
             border-radius: 50%;
@@ -166,6 +172,7 @@
             animation: bounceSlow 3s infinite;
             border: 2px solid white;
             text-align: center;
+            padding: 2px;
         }
         .floating-app-bubble:hover {
             transform: scale(1.1);
@@ -346,16 +353,16 @@
         <div onclick="toggleReviewsView()" class="floating-reviews-bubble">
             <div onclick="event.stopPropagation(); closeFloatingBubble();" class="floating-close-btn" title="إغلاق">✕</div>
             <span class="text-base">💬</span>
-            <span class="text-[10px] font-extrabold leading-tight">شوف رأى الناس</span>
+            <span class="text-[9px] font-extrabold leading-tight">شوف رأى<br>الناس</span>
         </div>
     </div>
 
-    <!-- فقاعة "حمّل التطبيق" الدائرية العائمة (على اليمين) -->
+    <!-- فقاعة "حمّل التطبيق" الدائرية العائمة (على اليمين - بنفس حجم وشكل فقاعة اليسار) -->
     <div id="app-install-bubble-container">
         <div onclick="handleAppInstallClick()" class="floating-app-bubble">
             <div onclick="event.stopPropagation(); closeAppInstallBubble();" class="floating-close-btn" title="إغلاق">✕</div>
-            <span class="text-base">📲</span>
-            <span class="text-[10px] font-extrabold leading-tight">حمّل التطبيق</span>
+            <span class="text-sm">📲</span>
+            <span class="text-[9px] font-extrabold leading-tight">حمّل<br>التطبيق</span>
         </div>
     </div>
 
@@ -457,6 +464,15 @@
     </div>
 
     <script>
+        // تسجيل الـ Service Worker لتفعيل التثبيت تلقائياً
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered successfully', reg))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+
 let staticReviews = [
     { name: "م/محمد", text: "ايه رأيكم في ورق العنب؟ حلو جداً والله ❤️❤️ تسلم ايدك بجد" },
     { name: "Aml Saad", text: "ماشاء الله تبارك الله والله العظيم لو اعرف انو ورق العنب هيبقي نضيف وجميل كدة كنت طلبت ٢ ك كمان .ربنا يبارك فيكم الف شكر" },
