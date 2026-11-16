@@ -283,7 +283,7 @@
         <!-- بطاقة التقييم المستقلة (تفتح Google Form) -->
         <div class="rating-card">
             <h3 class="text-xl font-extrabold text-gray-800 mb-2">⭐ رأيك يهمنا جداً ⭐</h3>
-            <p class="text-sm text-gray-600 mb-5">شاركنا تجربتك وتقييمك واكتب رأيك في خدمتنا في صفحة التقييمات</p>
+            <p class="text-sm text-gray-600 mb-5">شاركنا تجربتك وتقييمك واكتب رأيك في خدماتنا في صفحة التقييمات</p>
             
             <a href="https://forms.gle/PRYj4v6xLDV3AW5A9" target="_blank" rel="noopener noreferrer"
                class="inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-4 px-6 rounded-2xl shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition text-base md:text-lg border-2 border-yellow-600">
@@ -492,7 +492,6 @@ let sheetPopupEnabled = false;
 let sheetPopupTitle = 'تنبيه هام';
 let sheetPopupContent = '';
 let popupShownOnce = false;
-
 // متغيرات نافذة الصورة الإعلانية
 let sheetImagePopupEnabled = false;
 let sheetImagePopupUrl = '';
@@ -556,16 +555,14 @@ function updateWorkSchedule() {
     const isClosedOrHoliday = holidayMode || closeAfterHoursMode;
     document.querySelectorAll('.quantity-select, .note-select').forEach(sel => {
         if (isClosedOrHoliday) {
-            sel.disabled = true;
-            sel.style.opacity = '0.45';
+            sel.style.opacity = '0.5';
             sel.style.backgroundColor = '#f3f4f6';
             sel.style.borderColor = '#d1d5db';
-            sel.style.cursor = 'not-allowed';
+            sel.style.cursor = 'pointer';
             if(sel.classList.contains('quantity-select')) {
                 sel.value = '0';
             }
         } else {
-            sel.disabled = false;
             sel.style.opacity = '1';
             sel.style.backgroundColor = sel.classList.contains('note-select') ? '#eff6ff' : '#fff';
             sel.style.borderColor = sel.classList.contains('note-select') ? '#3b82f6' : '#16a34a';
@@ -578,6 +575,24 @@ function updateWorkSchedule() {
         closeCartPreviewModal();
     }
 }
+
+// إضافة التعديل الجديد: إظهار رسالة عند الضغط أو الوقوف على خانة الكمية أو الحجم في وضع الإغلاق أو الإجازة
+document.addEventListener('click', function(e) {
+    if ((e.target.classList.contains('quantity-select') || e.target.classList.contains('note-select')) && (holidayMode || closeAfterHoursMode)) {
+        e.preventDefault();
+        e.stopPropagation();
+        alert("انتهى وقت استقبال الطلبات اليوم");
+    }
+}, true);
+
+document.addEventListener('focus', function(e) {
+    if ((e.target.classList.contains('quantity-select') || e.target.classList.contains('note-select')) && (holidayMode || closeAfterHoursMode)) {
+        e.preventDefault();
+        e.target.blur();
+        alert("انتهى وقت استقبال الطلبات اليوم");
+    }
+}, true);
+
 setInterval(updateWorkSchedule, 30000);
 function closeWelcomePopup() {
     const popup = document.getElementById('welcome-popup-modal');
@@ -716,7 +731,7 @@ function parseCSV(text) {
 function cleanSheetNumber(value) {
     const normalized = String(value ?? '')
         .trim()
-        .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+        .replace(/[٠-٩]/g, digit => '٠١ي٣٤٥٦٧٨٩'.indexOf(digit))
         .replace(/[۰-۹]/g, digit => '۰۱۲۳۴۵۶۷۸۹'.indexOf(digit))
         .replace(/[٫٬]/g, '.')
         .replace(/,/g, '');
@@ -784,7 +799,6 @@ async function loadPricesFromSheet() {
             const imgPopUrlVal = get(rows[i], 'رابط صورة النافذة');
             if (imgPopUrlVal) { sheetImagePopupUrl = imgPopUrlVal; break; }
         }
-
         const updatedProducts = [];
         rows.slice(1).forEach(row => {
             const name = get(row, 'اسم الصنف');
@@ -1241,7 +1255,6 @@ function generateWhatsAppOrder() {
     let vegItems = '', fruitItems = '';
     let currentOrderItems = [];
     let orderDetailsText = '';
-
     selectedItems.forEach(item => {
         const select = item.selectElement;
         const quantityText = select.options[select.selectedIndex].text;
@@ -1267,7 +1280,6 @@ function generateWhatsAppOrder() {
     const cAddress = document.getElementById('cust-address').value || '';
     const cLandmark = document.getElementById('cust-landmark').value || '';
     const cNotes = document.getElementById('notes').value || '';
-
     // إرسال البيانات إلى جوجل شيت في الخلفية
     const formData = {
         name: cName,
@@ -1275,16 +1287,13 @@ function generateWhatsAppOrder() {
         address: cAddress + (cLandmark ? ' - علامة مميزة: ' + cLandmark : ''),
         orderDetails: orderDetailsText
     };
-
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyVIhcTZF7hwab0C8C9IBDi1WKeTv6EsEAnaEP84wEkzpn4vh7rUvg39JDDgFtmSOf1aQ/exec"; 
-
     fetch(WEB_APP_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
     }).catch(err => console.log("خطأ في حفظ الشيت:", err));
-
     let fullNotesAndAddr = '';
     if (cName) fullNotesAndAddr += `الاسم: ${cName}\n`;
     if (cPhone) fullNotesAndAddr += `الموبايل: ${cPhone}\n`;
