@@ -453,13 +453,16 @@
         </div>
     </div>
 
-    <!-- النافذة العائمة للصورة الإعلانية -->
+    <!-- النافذة العائمة للصورة الإعلانية (زر الغلق خارج إطار الصورة) -->
     <div id="image-popup-modal" style="display: none;" onclick="closeImagePopup()" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100001] flex items-center justify-center p-4">
-        <div onclick="event.stopPropagation()" class="relative w-full max-w-sm md:max-w-md rounded-3xl overflow-hidden shadow-2xl border-4 border-white animate-pop-in bg-white">
-            <button onclick="closeImagePopup()" title="إغلاق" class="absolute top-3 left-3 bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-full font-extrabold text-base flex items-center justify-center shadow-lg border-2 border-white z-10 active:scale-90 transition">
-                ✕
+        <div onclick="event.stopPropagation()" class="relative w-full max-w-sm md:max-w-md flex flex-col items-end animate-pop-in">
+            <button onclick="closeImagePopup()" title="إغلاق" class="mb-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full font-extrabold text-sm flex items-center gap-1 shadow-lg border-2 border-white active:scale-90 transition">
+                <span>إغلاق</span>
+                <span>✕</span>
             </button>
-            <img id="popup-promo-image" src="" alt="إعلان" class="w-full h-auto max-h-[80vh] object-contain block mx-auto">
+            <div class="w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
+                <img id="popup-promo-image" src="" alt="إعلان" class="w-full h-auto max-h-[75vh] object-contain block mx-auto">
+            </div>
         </div>
     </div>
 
